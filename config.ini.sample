@@ -1,0 +1,61 @@
+[GLOBAL]
+debug=False
+
+[WHOIS]
+server=127.0.0.1
+port=4243
+
+[SPHINX]
+server=127.0.0.1
+port=9312
+
+[ITS]
+url=https://rt:8443/rt/RTIR/Display.html?id=
+
+[abuse]
+ignore=
+    ripe.net$
+    arin.net$
+    apnic.net$
+    idnic.net$
+    peering@
+    dns.lu$
+    domreg@
+    registrar-email
+
+fallback=set.this@invalid.tld
+
+[replacelist]
+abuse@ispsystem.com=abuse@ispserver.com
+abuse@ispsystem.net=abuse@ispserver.com
+hostmaster@root.lu=abuse@as5577.net
+noc@as5577.net=abuse@as5577.net
+abuse@godaddy.com=abuse@godaddy.com,phishing@godaddy.com,malware@godaddy.com
+ipadmin@websitewelcome.com=security@hostgator.com,ipadmin@websitewelcome.com
+
+[PHISHTANK]
+url=http://checkurl.phishtank.com/checkurl/
+
+[GOOGLESAFEBROWSING]
+url=https://sb-ssl.google.com/safebrowsing/api/lookup?client=urlabuse&key={}&appver=1&pver=3.1
+
+[VIRUSTOTAL]
+url_upload=https://www.virustotal.com/vtapi/v2/url/scan
+url_report=https://www.virustotal.com/vtapi/v2/url/report
+
+[PDNS_CIRCL]
+url=https://www.circl.lu/pdns/query
+
+[PSSL_CIRCL]
+url=https://www.circl.lu/pssl/query
+
+[URLQUERY]
+url=https://uqapi.net/v3/json
+
+[domain]
+ignore=
+    post.lu
+    pt.lu
+    netline.lu
+    apple.com
+    paypal.com

@@ -1,0 +1,16 @@
+*.pyc
+*.log*
+
+# Configs
+redis.conf
+config.ini
+
+# Key files
+*.key
+
+# Py libs
+sphinxapi.py
+
+# JS libs
+angular.min.js
+ui-bootstrap-tpls.min.js

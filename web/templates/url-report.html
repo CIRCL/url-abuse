@@ -1,0 +1,46 @@
+{% raw %}
+
+<accordion close-others="oneAtATime">
+  <accordion-group is-open="status.open">
+    <accordion-heading>
+      {{url}} <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+    </accordion-heading>
+    <uq-phishtank data="url"></uq-phishtank>
+    <uq-virustotal data="url"></uq-virustotal>
+    <uq-googlesafebrowsing data="url"></uq-googlesafebrowsing>
+    <uq-urlquery data="url"></uq-urlquery>
+    <uq-ticket data="url"></uq-ticket>
+    <uq-whois data="url"></uq-whois><br>
+
+    <div ng-repeat="ip in ipv4">
+      <accordion close-others="oneAtATime">
+        <accordion-group heading="{{ip}}" is-open="status.open">
+          <uq-phishtank data="ip"></uq-phishtank>
+          <!-- <li><uq-virustotal data="ip"></uq-virustotal></li> -->
+          <uq-bgpranking data="ip"></uq-bgpranking>
+          <uq-urlquery data="ip"></uq-urlquery>
+          <uq-pdnscircl data="ip"></uq-pdnscircl>
+          <uq-psslcircl data="ip"></uq-psslcircl>
+          <uq-ticket data="ip"></uq-ticket>
+          <uq-whois data="ip"></uq-whois>
+        </accordion-group>
+      </accordion>
+    </div>
+
+    <div ng-repeat="ip in ipv6">
+      <accordion close-others="oneAtATime">
+        <accordion-group heading="{{ip}}" is-open="status.open">
+          <uq-phishtank data="ip"></uq-phishtank>
+          <!-- <li><uq-virustotal data="ip"></uq-virustotal></li> -->
+          <!--<li><uq-bgpranking data="ip"></uq-bgpranking></li>-->
+          <uq-urlquery data="ip"></uq-urlquery>
+          <uq-pdnscircl data="ip"></uq-pdnscircl>
+          <uq-ticket data="ip"></uq-ticket>
+          <uq-whois data="ip"></uq-whois>
+        </accordion-group>
+      </accordion>
+    </div>
+  </accordion-group>
+</accordion>
+
+{% endraw %}

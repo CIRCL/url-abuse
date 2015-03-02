@@ -1,0 +1,66 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block title %}CIRCL URL Abuse{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-fixed-top">
+    <div align="right"> <a href="https://www.circl.lu/"><img src="https://www.circl.lu/pics/logo.png"/></a> </div>
+</div>
+{% endblock %}
+
+{% block html_attribs %} ng-app="URLabuseApp" {% endblock html_attribs %}
+
+{% block body_attribs %} ng-controller="URLabuseController" {% endblock body_attribs %}
+
+{% block content %}
+<div class="container">
+    <h1>URL Abuse testing form</h1>
+    <h3><div align="center">URL Abuse is a public CIRCL service to review URL.<br /><a target="_blank" href="https://www.circl.lu/services/urlabuse/">For more information about the service</a></div></h3>
+  <br/>
+  <br/>
+  <form class="form form-horizontal" method="post" role="form" ng-submit="getResults()">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_errors(form, hiddens="only") }}
+    {%- for field in form %}
+        {% if not bootstrap_is_hidden_field(field) -%}
+            {{  wtf.form_field(field, form_type=form_type,
+                          horizontal_columns=horizontal_columns,
+                          button_map={"submit_button": "primary"}) }}
+        {%- endif %}
+    {%- endfor %}
+  </form>
+
+  {% raw %}
+  <div ng-show="query_url" class="ng-hide">
+      <center>
+          <h1>Report</h1>
+          <h3>{{ query_url }}</h3>
+          <div class="alert alert-danger ng-hide" role="alert" ng-show="error">
+              {{ error }}
+          </div>
+      </center>
+      <div ng-hide="urls">
+          {% endraw %}
+          <center> <img src="{{ url_for('static', filename='ajax-loader.gif') }}"/> </center>
+          {% raw %}
+      </div>
+      <div ng-repeat="url in urls">
+        <div uq-urlreport="url"></div>
+      </div>
+  </div>
+  {% endraw %}
+
+
+</div>
+{% endblock %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+<script src="{{ url_for('static', filename='angular.min.js') }}"></script>
+<script src="{{ url_for('static', filename='ui-bootstrap-tpls.min.js') }}"></script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
+{% endblock %}
+
