@@ -1,5 +1,61 @@
-Add a new module
-================
+#URL Abuse
+
+URL Abuse is a versatile free software for URL review, analysis and black-list reporting. URL Abuse is composed of a web interface where requests are submitted asynchronously and a back-end system to process the URLs into features modules.
+
+## Features
+
+ - HTTP redirects analysis and follows
+ - [Google Safe-Browsing](https://developers.google.com/safe-browsing/) lookup
+ - [Phishtank](http://www.phishtank.com/api_info.php) lookup
+ - [VirusTotal](https://www.virustotal.com/en/documentation/public-api/) lookup and submission
+ - [URL query](https://github.com/CIRCL/urlquery_python_api/) lookup
+ - [CIRCL Passive DNS](http://www.circl.lu/services/passive-dns/) lookup
+ - [CIRCL Passive SSL](http://www.circl.lu/services/passive-ssl/) lookup
+ - Sphinx search interface to RT/RTIR ticketing systems. The functionality is disabled by default but this can be used to display information about existing report of malicious URLs.
+
+Please note that some of the API services will require an API key. The API keys should be located in the root of the URL Abuse directory.
+
+## Demo
+
+[CIRCL URL Abuse](https://www.circl.lu/urlabuse/) is online.
+
+## Install
+
+Install the requirements
+
+~~~
+pip install -r requirements.txt
+~~~
+
+Copy and review the configuration:
+
+~~~
+cp config.ini.sample config.ini
+~~~
+
+Install Redis and update the configuration.
+
+Start the Redis back-end
+
+~~~
+./run_redis.sh
+~~~
+
+Start the workers (at least 10)
+
+~~~
+parallel -j 10 worker.py
+~~~
+
+Start the web interface
+
+~~~
+python runapp.py
+~~~
+
+## Contributing
+
+### Add a new module
 
 Look at the existings functions/modules. The changes will have to be made in the following files:
 
