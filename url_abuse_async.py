@@ -264,7 +264,8 @@ def vt_query_url(url, url_up, key, query, upload=True):
     link = res.get("permalink")
     positives = res.get("positives")
     total = res.get("total")
-    _cache_set(query, (msg, link, positives, total), 'vt')
+    if positives is not None:
+        _cache_set(query, (msg, link, positives, total), 'vt')
     return msg, link, positives, total
 
 
