@@ -11,6 +11,7 @@ URL Abuse is a versatile free software for URL review, analysis and black-list r
  - [URL query](https://github.com/CIRCL/urlquery_python_api/) lookup
  - [CIRCL Passive DNS](http://www.circl.lu/services/passive-dns/) lookup
  - [CIRCL Passive SSL](http://www.circl.lu/services/passive-ssl/) lookup
+ - [Universal WHOIS](https://github.com/Rafiot/uwhoisd) lookup for abuse contact
  - Sphinx search interface to RT/RTIR ticketing systems. The functionality is disabled by default but can be used to display information about existing report of malicious URLs.
 
 Please note that some of the API services will require an API key. The API keys should be located in the root of the URL Abuse directory.
@@ -44,7 +45,7 @@ Start the Redis back-end
 Start the workers (at least 10)
 
 ~~~
-parallel -j 10 worker.py
+seq 10 | parallel -u -j 10 ./worker.py
 ~~~
 
 Start the web interface
