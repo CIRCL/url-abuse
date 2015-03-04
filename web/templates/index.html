@@ -23,7 +23,7 @@
     {% if messages %}
         <div class="flashes alert">
             {% for message in messages %}
-            <center>{{ message }}</center>
+            <center><div class="alert alert-success">{{ message }}</div></center>
             {% endfor %}
         </div>
     {% endif %}
