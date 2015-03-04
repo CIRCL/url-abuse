@@ -1,7 +1,8 @@
 import json
 import os
 
-from flask import Flask, render_template, request, Response, redirect, url_for
+from flask import Flask, render_template, request, Response, redirect, url_for, flash
+from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap
 from flask_wtf import Form
 from wtforms import StringField, SubmitField
@@ -20,7 +21,8 @@ import ConfigParser
 # from pyfaup.faup import Faup
 from proxied import ReverseProxied
 from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
-    vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking
+    vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
+    get_cached
 
 config_path = 'config.ini'
 
@@ -70,6 +72,11 @@ def create_app(configfile=None):
     Bootstrap(app)
     q = Queue(connection=conn)
 
+    # Mail Config
+    app.config['MAIL_SERVER'] = 'localhost'
+    app.config['MAIL_PORT'] = 25
+    mail = Mail(app)
+
     app.config['SECRET_KEY'] = 'devkey'
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     app.config['configfile'] = config_path
@@ -82,6 +89,12 @@ def create_app(configfile=None):
     ignorelist = [i.strip()
                   for i in parser.get('abuse', 'ignore').split('\n')
                   if len(i.strip()) > 0]
+
+    def _get_user_ip(request):
+        ip = request.headers.get('X-Forwarded-For')
+        if ip is None:
+            ip = request.remote_addr
+        return ip
 
     @app.route('/', methods=['GET', 'POST'])
     def index():
@@ -138,9 +151,7 @@ def create_app(configfile=None):
     def run_query():
         data = json.loads(request.data)
         url = data["url"]
-        ip = request.headers.get('X-Forwarded-For')
-        if ip is None:
-            ip = request.remote_addr
+        ip = _get_user_ip(request)
         app.logger.info('{} {}'.format(ip, url))
         is_valid = q.enqueue_call(func=is_valid_url, args=(url,), result_ttl=500)
         return is_valid.get_id()
@@ -256,5 +267,23 @@ def create_app(configfile=None):
         u = q.enqueue_call(func=psslcircl, args=(url, user.strip(), password.strip(),
                                                  query,), result_ttl=500)
         return u.get_id()
+
+    @app.route('/get_cache/<path:url>')
+    def get_cache(url):
+        data = get_cached(url)
+        dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+        return dumped
+
+    @app.route('/submit/<path:url>')
+    def send_mail(url):
+        ip = _get_user_ip(request)
+        data = get_cached(url)
+        dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+        msg = Message('URL Abuse report from ' + ip, sender='urlabuse@circl.lu',
+                      recipients=["info@circl.lu"])
+        msg.body = dumped
+        mail.send(msg)
+        flash('Mail successfully sent to CIRCL.')
+        return redirect(url_for('index'))
 
     return app

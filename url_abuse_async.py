@@ -400,3 +400,42 @@ def bgpranking(ip):
     response = (ptrr, asn_descr, asn, int(position), int(total), float(rank))
     _cache_set(ip, response, 'bgp')
     return response
+
+
+def _deserialize_cached(entry):
+    to_return = {}
+    h = r_cache.hgetall(entry)
+    for key, value in h.iteritems():
+        to_return[key] = json.loads(value)
+    return to_return
+
+
+def get_url_data(url):
+    data = _deserialize_cached(url)
+    if data.get('dns') is not None:
+        ipv4, ipv6 = data['dns']
+        ip_data = {}
+        if ipv4 is not None:
+            for ip in ipv4:
+                ip_data[ip] = _deserialize_cached(ip)
+        if ipv6 is not None:
+            for ip in ipv6:
+                ip_data[ip] = _deserialize_cached(ip)
+        if len(ip_data) > 0:
+            data.update(ip_data)
+    return {url: data}
+
+
+def get_cached(url):
+    _cache_init()
+    if not enable_cache:
+        return [url]
+    url_data = get_url_data(url)
+    to_return = [url_data]
+    if url_data[url].get('list') is not None:
+        url_redirs = url_data[url]['list']
+        for u in url_redirs:
+            if u == url:
+                continue
+            to_return.append(get_url_data(u))
+    return to_return

@@ -19,6 +19,15 @@
     <h1>URL Abuse testing form</h1>
     <h3><div align="center">URL Abuse is a public CIRCL service to review URL.<br /><a target="_blank" href="https://www.circl.lu/services/urlabuse/">For more information about the service</a></div></h3>
   <br/>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flashes alert">
+            {% for message in messages %}
+            <center>{{ message }}</center>
+            {% endfor %}
+        </div>
+    {% endif %}
+  {% endwith %}
   <br/>
   <form class="form form-horizontal" method="post" role="form" ng-submit="getResults()">
     {{ form.hidden_tag() }}
@@ -45,6 +54,11 @@
           {% endraw %}
           <center> <img src="{{ url_for('static', filename='ajax-loader.gif') }}"/> </center>
           {% raw %}
+      </div>
+      <div ng-show="urls">
+        <br/>
+        <center><a href="submit/{{ query_url }}">Send report to CIRCL</a></center>
+        <br/>
       </div>
       <div ng-repeat="url in urls">
         <div uq-urlreport="url"></div>
