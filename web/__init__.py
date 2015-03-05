@@ -22,7 +22,7 @@ import ConfigParser
 from proxied import ReverseProxied
 from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
     vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
-    get_cached
+    get_cached, get_mail_sent, set_mail_sent, get_submissions
 
 config_path = 'config.ini'
 
@@ -89,6 +89,7 @@ def create_app(configfile=None):
     ignorelist = [i.strip()
                   for i in parser.get('abuse', 'ignore').split('\n')
                   if len(i.strip()) > 0]
+    autosend_threshold = 5
 
     def _get_user_ip(request):
         ip = request.headers.get('X-Forwarded-For')
@@ -153,6 +154,8 @@ def create_app(configfile=None):
         url = data["url"]
         ip = _get_user_ip(request)
         app.logger.info('{} {}'.format(ip, url))
+        if get_submissions(url) >= autosend_threshold:
+            send(url, '', True)
         is_valid = q.enqueue_call(func=is_valid_url, args=(url,), result_ttl=500)
         return is_valid.get_id()
 
@@ -274,16 +277,27 @@ def create_app(configfile=None):
         dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
         return dumped
 
+    def send(url, ip='', autosend=False):
+        if not get_mail_sent(url):
+            print 'Send mail'
+            set_mail_sent(url)
+            data = get_cached(url)
+            if not autosend:
+                subject = 'URL Abuse report from ' + ip
+            else:
+                subject = 'URL Abuse report sent automatically'
+            msg = Message(subject, sender='urlabuse@circl.lu', recipients=["info@circl.lu"])
+            msg.body = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+            mail.send(msg)
+
     @app.route('/submit/<path:url>')
     def send_mail(url):
-        ip = _get_user_ip(request)
-        data = get_cached(url)
-        dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
-        msg = Message('URL Abuse report from ' + ip, sender='urlabuse@circl.lu',
-                      recipients=["info@circl.lu"])
-        msg.body = dumped
-        mail.send(msg)
-        flash('Mail successfully sent to CIRCL.')
+        if get_mail_sent(url):
+            flash('Mail already sent to CIRCL.')
+        else:
+            ip = _get_user_ip(request)
+            send(url, ip)
+            flash('Mail successfully sent to CIRCL.')
         return redirect(url_for('index'))
 
     return app

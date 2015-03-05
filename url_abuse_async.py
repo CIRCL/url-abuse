@@ -5,6 +5,7 @@
 # Copyright (C) 2014 CIRCL Computer Incident Response Center Luxembourg (SMILE gie)
 #
 
+from datetime import date
 import json
 import redis
 import urllib
@@ -66,8 +67,43 @@ def to_bool(s):
     return s.lower() in ('1', 'true', 'yes', 'on')
 
 
+def get_submissions(url, day=None):
+    _cache_init()
+    if enable_cache:
+        if day is None:
+            day = date.today().isoformat()
+        else:
+            day = day.isoformat()
+        key = date.today().isoformat() + '_submissions'
+        return r_cache.zscore(key, url)
+
+
+def get_mail_sent(url, day=None):
+    _cache_init()
+    if enable_cache:
+        if day is None:
+            day = date.today().isoformat()
+        else:
+            day = day.isoformat()
+        key = date.today().isoformat() + '_mails'
+        return r_cache.sismember(key, url)
+
+
+def set_mail_sent(url, day=None):
+    _cache_init()
+    if enable_cache:
+        if day is None:
+            day = date.today().isoformat()
+        else:
+            day = day.isoformat()
+        key = date.today().isoformat() + '_mails'
+        return r_cache.sadd(key, url)
+
+
 def is_valid_url(url):
     cached = _cache_get(url, 'valid')
+    key = date.today().isoformat() + '_submissions'
+    r_cache.zincrby(key, url)
     if cached is not None:
         return cached
     fex = Faup()
