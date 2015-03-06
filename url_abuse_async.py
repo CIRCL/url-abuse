@@ -216,7 +216,11 @@ def url_list(url):
     cached = _cache_get(url, 'list')
     if cached is not None:
         return cached
-    list_urls = [u for u in get_urls(url) if u is not None]
+    list_urls = []
+    for u in get_urls(url):
+        if u is None or u in list_urls:
+            continue
+        list_urls.append(u)
     _cache_set(url, list_urls, 'list')
     return list_urls
 
