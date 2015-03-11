@@ -66,6 +66,15 @@
 
       $scope.query('start', {"url": userInput}, check_validity);
     };
+
+     $scope.submit_email = function() {
+        $scope.query('submit', {"url":  $scope.query_url}, function(){
+            $scope.query_url = '';
+            $scope.urls = '';
+            $scope.input_url = '';
+        });
+    };
+
   });
 
   app.directive('uqUrlreport', function(globFct) {

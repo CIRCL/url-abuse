@@ -1,5 +1,6 @@
 import json
 import os
+from base64 import urlsafe_b64decode
 
 from flask import Flask, render_template, request, Response, redirect, url_for, flash
 from flask_mail import Mail, Message
@@ -273,6 +274,7 @@ def create_app(configfile=None):
 
     @app.route('/get_cache/<path:url>')
     def get_cache(url):
+        url = urlsafe_b64decode(url.encode('utf-8'))
         data = get_cached(url)
         dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
         return dumped
@@ -290,8 +292,10 @@ def create_app(configfile=None):
             msg.body = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
             mail.send(msg)
 
-    @app.route('/submit/<path:url>')
-    def send_mail(url):
+    @app.route('/submit', methods=['POST'])
+    def send_mail():
+        data = json.loads(request.data)
+        url = data["url"]
         if get_mail_sent(url):
             flash('Mail already sent to CIRCL.')
         else:

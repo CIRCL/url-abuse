@@ -375,8 +375,10 @@ def whois(server, port, domain, ignorelist, replacelist):
     if domain.startswith('http'):
         fex = Faup()
         fex.decode(domain)
-        domain = fex.get_domain().lower()
-    s.send(domain + "\r\n")
+        d = fex.get_domain().lower()
+    else:
+        d = domain
+    s.send(d + "\r\n")
     response = ''
     while True:
         d = s.recv(4096)
