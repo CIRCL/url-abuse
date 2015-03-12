@@ -4,7 +4,6 @@
 import json
 import requests
 import time
-from base64 import urlsafe_b64encode
 
 
 class PyURLAbuse(object):
@@ -132,6 +131,6 @@ class PyURLAbuse(object):
         return {'info': 'New query, all the details may not be available.'}, self.get_cache(q)
 
     def get_cache(self, q):
-        q = urlsafe_b64encode(q)
-        response = self.session.get('{}get_cache/{}'.format(self.url, q))
+        query = {'query': q}
+        response = self.session.post('{}get_cache' .format(self.url), data=json.dumps(query))
         return response.json()

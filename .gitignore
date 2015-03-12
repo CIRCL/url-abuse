@@ -14,3 +14,8 @@ sphinxapi.py
 # JS libs
 angular.min.js
 ui-bootstrap-tpls.min.js
+
+# Packages stuff
+build
+dist
+*egg-info

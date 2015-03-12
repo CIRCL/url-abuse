@@ -1,8 +1,7 @@
 import json
 import os
-from base64 import urlsafe_b64decode
 
-from flask import Flask, render_template, request, Response, redirect, url_for, flash
+from flask import Flask, render_template, request, Response, redirect, url_for, jsonify
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap
 from flask_wtf import Form
@@ -23,7 +22,7 @@ import ConfigParser
 from proxied import ReverseProxied
 from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
     vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
-    get_cached, get_mail_sent, set_mail_sent, get_submissions
+    cached, get_mail_sent, set_mail_sent, get_submissions
 
 config_path = 'config.ini'
 
@@ -272,10 +271,11 @@ def create_app(configfile=None):
                                                  query,), result_ttl=500)
         return u.get_id()
 
-    @app.route('/get_cache/<path:url>')
-    def get_cache(url):
-        url = urlsafe_b64decode(url.encode('utf-8'))
-        data = get_cached(url)
+    @app.route('/get_cache', methods=['POST'])
+    def get_cache():
+        data = json.loads(request.data)
+        url = data["query"]
+        data = cached(url)
         dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
         return dumped
 
@@ -283,7 +283,7 @@ def create_app(configfile=None):
         if not get_mail_sent(url):
             print 'Send mail'
             set_mail_sent(url)
-            data = get_cached(url)
+            data = cached(url)
             if not autosend:
                 subject = 'URL Abuse report from ' + ip
             else:
@@ -296,12 +296,9 @@ def create_app(configfile=None):
     def send_mail():
         data = json.loads(request.data)
         url = data["url"]
-        if get_mail_sent(url):
-            flash('Mail already sent to CIRCL.')
-        else:
+        if not get_mail_sent(url):
             ip = _get_user_ip(request)
             send(url, ip)
-            flash('Mail successfully sent to CIRCL.')
         return redirect(url_for('index'))
 
     return app

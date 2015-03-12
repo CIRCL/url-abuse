@@ -19,15 +19,11 @@
     <h1>URL Abuse testing form</h1>
     <h3><div align="center">URL Abuse is a public CIRCL service to review URL.<br /><a target="_blank" href="https://www.circl.lu/services/urlabuse/">For more information about the service</a></div></h3>
   <br/>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="flashes alert">
-            {% for message in messages %}
-            <center><div class="alert alert-success">{{ message }}</div></center>
-            {% endfor %}
-        </div>
-    {% endif %}
-  {% endwith %}
+  {% raw %}
+  <div class="alert alert-success" ng-show="flash.getMessage()">
+      <center>{{ flash.getMessage() }}</center>
+  </div>
+  {% endraw %}
   <br/>
   <form class="form form-horizontal" method="post" role="form" ng-submit="getResults()">
     {{ form.hidden_tag() }}

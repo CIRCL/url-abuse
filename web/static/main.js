@@ -3,6 +3,24 @@
 
   var app = angular.module('URLabuseApp', ['ui.bootstrap']);
 
+  app.factory("flash", function($rootScope) {
+    var queue = [];
+    var currentMessage = "";
+
+    $rootScope.$on("newFlashMessage", function() {
+      currentMessage = queue.shift() || "";
+    });
+
+    return {
+      setMessage: function(message) {
+        queue.push(message);
+      },
+      getMessage: function() {
+        return currentMessage;
+      }
+    };
+  });
+
   app.factory('globFct', [ '$log', '$http', '$timeout', function($log, $http, $timeout){
       return {
           poller: function myself(jobID, callback) {
@@ -33,10 +51,11 @@
       };
     }]);
 
-  app.controller('URLabuseController', function($scope, $log, globFct) {
+  app.controller('URLabuseController', function($scope, $log, globFct, flash) {
 
     $scope.poller = globFct.poller;
     $scope.query = globFct.query;
+    $scope.flash = flash;
 
     var get_redirects = function(jobID) {
         $scope.poller(jobID, function(data){
@@ -50,6 +69,9 @@
       // get the URL from the input
       $scope.query_url = '';
       $scope.urls = '';
+      // Reset the message
+      $scope.$emit('newFlashMessage', '');
+
       var userInput = $scope.input_url;
 
 
@@ -72,6 +94,8 @@
             $scope.query_url = '';
             $scope.urls = '';
             $scope.input_url = '';
+            flash.setMessage("Mail sent to CIRCL");
+            $scope.$emit('newFlashMessage', '');
         });
     };
 

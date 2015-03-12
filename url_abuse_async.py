@@ -468,7 +468,7 @@ def get_url_data(url):
     return {url: data}
 
 
-def get_cached(url):
+def cached(url):
     _cache_init()
     if not enable_cache:
         return [url]
