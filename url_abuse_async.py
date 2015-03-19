@@ -207,6 +207,10 @@ def get_urls(url, depth=1):
                 base += ':{}'.format(port)
             if not base.endswith('/'):
                 base += '/'
+            if not meta_redir_url.startswith('/'):
+                base += fex.resource_path()
+            if not base.endswith('/'):
+                base += '/'
             meta_redir_url = base + meta_redir_url
         for url in get_urls(meta_redir_url, depth):
             yield url
