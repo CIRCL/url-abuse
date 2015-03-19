@@ -205,10 +205,9 @@ def get_urls(url, depth=1):
             port = fex.get_port()
             if port is not None:
                 base += ':{}'.format(port)
-            if not base.endswith('/'):
-                base += '/'
             if not meta_redir_url.startswith('/'):
-                base += fex.resource_path()
+                # relative redirect. resource_path has the initial '/'
+                base += fex.get_resource_path()
             if not base.endswith('/'):
                 base += '/'
             meta_redir_url = base + meta_redir_url
