@@ -207,7 +207,8 @@ def get_urls(url, depth=1):
                 base += ':{}'.format(port)
             if not meta_redir_url.startswith('/'):
                 # relative redirect. resource_path has the initial '/'
-                base += fex.get_resource_path()
+                if fex.get_resource_path() is not None:
+                    base += fex.get_resource_path()
             if not base.endswith('/'):
                 base += '/'
             meta_redir_url = base + meta_redir_url
