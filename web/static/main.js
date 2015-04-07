@@ -257,7 +257,7 @@
                 };
                 globFct.query('pdnscircl', {"query": scope.query}, get_response);
             },
-        template: '<div ng-show="nbentries" class="animate-show">Has {{nbentries}} unique entries in CIRCL Passive DNS. The {{lastentries.length}} most recent ones: <ul><div ng-repeat="domain in lastentries"><li>{{domain}}</li></div></ul></div>'
+        template: '<div ng-show="nbentries" class="animate-show">Has {{nbentries}} unique entries in CIRCL Passive DNS. {{lastentries.length}} most recent one(s): <ul><div ng-repeat="domain in lastentries"><li>{{domain}}</li></div></ul></div>'
         };
     });
     app.directive('uqPsslcircl', function(globFct) {
@@ -301,7 +301,7 @@
                 };
                 globFct.query('bgpranking', {"query": scope.query}, get_response);
             },
-            template: '<div ng-show="asn" class="animate-show"><alert type="{{alert_val}}">Information from BGP Ranking: <ul><li ng-show="ptr">PTR Resource Record: {{ptr}}</li><li>Announced by: {{asndesc}} (<a target="_blank" ng-href="http://bgpranking.circl.lu/asn_details?asn={{asn}}">{{asn}}</a>)</li><li>This ASN is at the {{position}} in the list of {{total}} known ASNs ({{value}}).</li></ul></alert></div>'
+            template: '<div ng-show="asn" class="animate-show"><alert type="{{alert_val}}">Information from BGP Ranking: <ul><li ng-show="ptr">PTR Resource Record: {{ptr}}</li><li>Announced by: {{asndesc}} (<a target="_blank" ng-href="http://bgpranking.circl.lu/asn_details?asn={{asn}}">{{asn}}</a>)</li><li>This ASN is at position {{position}} in the list of {{total}} known ASNs ({{value}}).</li></ul></alert></div>'
         };
     });
 }());
