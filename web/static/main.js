@@ -113,6 +113,12 @@
                 globFct.poller(jobID, function(data){
                     scope.ipv4 = data[0];
                     scope.ipv6 = data[1];
+                    if (scope.ipv4.length === 0){
+                        scope.ipv4 = ['Unable to resolve in IPv4'];
+                    }
+                    if (scope.ipv6.length === 0){
+                        scope.ipv6 = ['Unable to resolve in IPv6'];
+                    }
                 });
             };
             globFct.query('resolve', {"url": scope.url}, get_ips);
