@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Flask, render_template, request, Response, redirect, url_for, jsonify
+from flask import Flask, render_template, request, Response, redirect, url_for
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap
 from flask_wtf import Form
@@ -17,9 +17,12 @@ from rq import Queue
 from rq.job import Job
 from worker import conn
 
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 # from pyfaup.faup import Faup
-from proxied import ReverseProxied
+from .proxied import ReverseProxied
 from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
     vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
     cached, get_mail_sent, set_mail_sent, get_submissions
@@ -81,7 +84,7 @@ def create_app(configfile=None):
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     app.config['configfile'] = config_path
 
-    parser = ConfigParser.SafeConfigParser()
+    parser = configparser.SafeConfigParser()
     parser.read(app.config['configfile'])
 
     replacelist = make_dict(parser, 'replacelist')
@@ -283,7 +286,7 @@ def create_app(configfile=None):
         to_return = ''
         all_mails = set()
         for entry in data:
-            for url, info in entry.iteritems():
+            for url, info in list(entry.items()):
                 to_return += '\n{}\n'.format(url)
                 if info.get('whois'):
                     all_mails.update(info.get('whois'))
