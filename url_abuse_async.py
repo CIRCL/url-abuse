@@ -8,7 +8,11 @@
 from datetime import date
 import json
 import redis
-import urllib
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 from pyfaup.faup import Faup
 import socket
 import dns.resolver
@@ -255,7 +259,7 @@ def phish_query(url, key, query):
     cached = _cache_get(query, 'phishtank')
     if cached is not None:
         return cached
-    postfields = {'url': urllib.quote(query), 'format': 'json', 'app_key': key}
+    postfields = {'url': quote(query), 'format': 'json', 'app_key': key}
     response = requests.post(url, data=postfields)
     res = response.json()
     if res["meta"]["status"] == "success":
@@ -355,7 +359,7 @@ def process_emails(emails, ignorelist, replacelist):
             if re.search(ignorelist_entry, mail, re.I):
                 if mail in to_return:
                     to_return.remove(mail)
-        for k, v in replacelist.iteritems():
+        for k, v in list(replacelist.items()):
             if re.search(k, mail, re.I):
                 if k in to_return:
                     to_return.remove(k)
@@ -372,9 +376,9 @@ def whois(server, port, domain, ignorelist, replacelist):
     try:
         s.connect((server, port))
     except Exception:
-        print "Connection problems - check WHOIS server"
-        print "WHOIS request while problem occurred: " + domain
-        print "WHOIS server: {}:{}".format(server, port)
+        print("Connection problems - check WHOIS server")
+        print(("WHOIS request while problem occurred: ", domain))
+        print(("WHOIS server: {}:{}".format(server, port)))
         sys.exit(0)
     if domain.startswith('http'):
         fex = Faup()
@@ -451,7 +455,7 @@ def bgpranking(ip):
 def _deserialize_cached(entry):
     to_return = {}
     h = r_cache.hgetall(entry)
-    for key, value in h.iteritems():
+    for key, value in list(h.items()):
         to_return[key] = json.loads(value)
     return to_return
 
