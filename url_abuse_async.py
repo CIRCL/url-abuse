@@ -242,7 +242,20 @@ def dns_resolve(url):
     host = fex.get_host().lower()
     ipv4 = None
     ipv6 = None
-    if not is_ip(host):
+    if is_ip(host):
+        if ':' in host:
+            try:
+                socket.inet_pton(socket.AF_INET6, host)
+                ipv6 = [host]
+            except:
+                pass
+        else:
+            try:
+                socket.inet_aton(host)
+                ipv4 = [host]
+            except:
+                pass
+    else:
         try:
             ipv4 = [str(ip) for ip in dns.resolver.query(host, 'A')]
         except:
