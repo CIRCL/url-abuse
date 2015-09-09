@@ -47,10 +47,13 @@ url_report=https://www.virustotal.com/vtapi/v2/url/report
 url=https://www.circl.lu/pdns/query
 
 [PSSL_CIRCL]
-url=https://www.circl.lu/pssl/query
+url=https://www.circl.lu/
 
 [URLQUERY]
 url=https://uqapi.net/v3/json
+
+[EUPI]
+url=https://fr.dev.phishing-initiative.net
 
 [domain]
 ignore=
