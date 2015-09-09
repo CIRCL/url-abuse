@@ -206,6 +206,9 @@
             link: function(scope, element, attrs) {
                 var get_response = function(jobID) {
                   globFct.poller(jobID, function(data){
+                      if (data === "inconnu"){
+                        return;
+                      }
                       scope.response = data;
                       if(data === "clean"){
                         scope.alert_val = "success";

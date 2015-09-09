@@ -464,6 +464,7 @@ def eupi(url, key, q):
         r = response.get('results')[0]['tag_label']
         _cache_set(q, r, 'eupi')
         return r
+    eu.post_submission(q)
     return None
 
 
