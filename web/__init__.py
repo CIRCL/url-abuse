@@ -25,7 +25,7 @@ except ImportError:
 from .proxied import ReverseProxied
 from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
     vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
-    cached, get_mail_sent, set_mail_sent, get_submissions
+    cached, get_mail_sent, set_mail_sent, get_submissions, eupi
 
 config_path = 'config.ini'
 
@@ -245,6 +245,17 @@ def create_app(configfile=None):
         query = data["query"]
         u = q.enqueue_call(func=whois, args=(server, port, query, ignorelist, replacelist),
                            result_ttl=500)
+        return u.get_id()
+
+    @app.route('/eupi', methods=['POST'])
+    def eu():
+        data = json.loads(request.data)
+        if not os.path.exists('eupi.key'):
+            return None
+        url = parser.get("EUPI", "url")
+        key = open('eupi.key', 'r').readline().strip()
+        query = data["query"]
+        u = q.enqueue_call(func=eupi, args=(url, key, query,), result_ttl=500)
         return u.get_id()
 
     @app.route('/pdnscircl', methods=['POST'])

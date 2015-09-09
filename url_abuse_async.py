@@ -23,6 +23,7 @@ from pypdns import PyPDNS
 import bgpranking_web
 import urlquery
 from pypssl import PyPSSL
+from pyeupi import PyEUPI
 import requests
 from bs4 import BeautifulSoup
 
@@ -420,8 +421,8 @@ def pdnscircl(url, user, passwd, q):
     cached = _cache_get(q, 'pdns')
     if cached is not None:
         return cached
-    pdnscircl = PyPDNS(url, basic_auth=(user, passwd))
-    response = pdnscircl.query(q)
+    pdns = PyPDNS(url, basic_auth=(user, passwd))
+    response = pdns.query(q)
     all_uniq = []
     for e in reversed(response):
         host = e['rrname'].lower()
@@ -438,8 +439,8 @@ def psslcircl(url, user, passwd, q):
     cached = _cache_get(q, 'pssl')
     if cached is not None:
         return cached
-    psslcircl = PyPSSL(url, basic_auth=(user, passwd))
-    response = psslcircl.query(q)
+    pssl = PyPSSL(url, basic_auth=(user, passwd))
+    response = pssl.query(q)
     if response.get(q) is not None:
         certinfo = response.get(q)
         entries = {}
@@ -450,6 +451,19 @@ def psslcircl(url, user, passwd, q):
                     entries[sha1].append(value)
         _cache_set(q, entries, 'pssl')
         return entries
+    return None
+
+
+def eupi(url, key, q):
+    cached = _cache_get(q, 'eupi')
+    if cached is not None:
+        return cached
+    eu = PyEUPI(key, url)
+    response = eu.search_url(q)
+    if response.get('results'):
+        r = response.get('results')[0]['tag_label']
+        _cache_set(q, r, 'eupi')
+        return r
     return None
 
 

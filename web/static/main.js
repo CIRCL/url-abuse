@@ -198,6 +198,30 @@
         };
     });
 
+    app.directive('uqEupi', function(globFct) {
+        return {
+            scope: {
+                      query: '=data',
+            },
+            link: function(scope, element, attrs) {
+                var get_response = function(jobID) {
+                  globFct.poller(jobID, function(data){
+                      scope.response = data;
+                      if(data === "clean"){
+                        scope.alert_val = "success";
+                      }
+                      else{
+                        ascope.alert_val = "danger";
+                      }
+                  });
+                };
+                globFct.query('eupi', {"query": scope.query}, get_response);
+            },
+        template: function(elem, attr){
+            return '<div ng-show="response" class="animate-show"><alert type="{{alert_val}}">Known as {{response}} by the European Union antiphishing initiative.</alert></div>';}
+        };
+    });
+
     app.directive('uqUrlquery', function(globFct) {
         return {
             scope: {
