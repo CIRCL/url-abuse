@@ -5,3 +5,9 @@ flask-wtf
 rq
 redis
 pypssl
+pypdns
+pyeupi
+dnspython
+bgpranking-web
+urlquery
+beautifulsoup4

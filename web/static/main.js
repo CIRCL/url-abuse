@@ -279,7 +279,7 @@
                 };
                 globFct.query('psslcircl', {"query": scope.query}, get_response);
             },
-        template: '<div ng-show="entries" class="animate-show">SSL certificates related to this IP: <ul><div ng-repeat="entry in entries"><li>{{entry}}</li></div></ul></div>'
+            template: '<div ng-show="entries" class="animate-show">SSL certificates related to this IP: <ul><div ng-repeat="(sha1, subject) in entries"><li><b>{{sha1}}</b>: {{subject[0]}}</li></div></ul></div>'
         };
     });
     app.directive('uqBgpranking', function(globFct) {

@@ -166,7 +166,7 @@ def get_urls(url, depth=1):
 
     def meta_redirect(content):
         c = content.lower()
-        soup = BeautifulSoup(c)
+        soup = BeautifulSoup(c, "html.parser")
         for result in soup.find_all(attrs={'http-equiv': 'refresh'}):
             if result:
                 out = result["content"].split(";")
@@ -441,7 +441,13 @@ def psslcircl(url, user, passwd, q):
     psslcircl = PyPSSL(url, basic_auth=(user, passwd))
     response = psslcircl.query(q)
     if response.get(q) is not None:
-        entries = response[q]
+        certinfo = response.get(q)
+        entries = {}
+        for sha1 in certinfo['certificates']:
+            entries[sha1] = []
+            if certinfo['subjects'].get(sha1):
+                for value in certinfo['subjects'][sha1]['values']:
+                    entries[sha1].append(value)
         _cache_set(q, entries, 'pssl')
         return entries
     return None
