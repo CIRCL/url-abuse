@@ -2,10 +2,6 @@ language: python
 
 python:
     - "2.7"
-    - "3.3"
-    - "3.4"
-    - "3.5"
-    - "nightly"
 
 sudo: required
 
@@ -33,5 +29,11 @@ before_script:
     - redis-server /etc/redis/redis.conf --port 6334 --daemonize yes
 
 script:
-    - seq 10 | parallel -u -j 10 ./worker.py &
-    - ./runapp.py
+    - ./worker.py &
+    - ./runapp.py &
+    - sleep 30
+
+after_success:
+    - coveralls
+    - codecov
+
