@@ -21,7 +21,7 @@ install:
     - sudo make install
     - sudo ldconfig
     - popd
-    - pushd src/lib/bindings/python
+    - pushd faup/src/lib/bindings/python
     - python setup.py install
     - popd
     - pip install -r requirements.txt
