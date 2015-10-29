@@ -29,6 +29,9 @@ install:
     - pip install codecov
     - cp config.ini.sample config.ini
 
+before_script:
+    - redis-server /etc/redis/redis.conf --port 6334 --daemonize yes
+
 script:
     - seq 10 | parallel -u -j 10 ./worker.py &
     - ./runapp.py
