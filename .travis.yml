@@ -9,9 +9,6 @@ python:
 
 sudo: required
 
-services:
-    - redis-server
-
 addons:
     apt:
         packages:
@@ -19,12 +16,13 @@ addons:
 
 install:
     - git clone git://github.com/stricaud/faup.git
-    - pushd faup
-    - pushd build
+    - pushd faup/build
     - cmake .. && make
     - sudo make install
     - sudo ldconfig
     - popd
+    - pushd src/lib/bindings/python
+    - python setup.py install
     - popd
     - pip install -r requirements.txt
     - pip install coveralls
