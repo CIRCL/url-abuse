@@ -19,11 +19,13 @@ addons:
 
 install:
     - git clone git://github.com/stricaud/faup.git
-    - cd faup
-    - cd build
+    - pushd faup
+    - pushd build
     - cmake .. && make
     - sudo make install
     - sudo ldconfig
+    - popd
+    - popd
     - pip install -r requirements.txt
     - pip install coveralls
     - pip install codecov
