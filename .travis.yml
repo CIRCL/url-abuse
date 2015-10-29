@@ -20,7 +20,6 @@ addons:
 install:
     - git clone git://github.com/stricaud/faup.git
     - cd faup
-    - mkdir build
     - cd build
     - cmake .. && make
     - sudo make install
