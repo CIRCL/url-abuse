@@ -7,10 +7,24 @@ python:
     - "3.5"
     - "nightly"
 
+sudo: required
+
 services:
     - redis-server
 
+addons:
+    apt:
+        packages:
+            - parallel
+
 install:
+    - git clone git://github.com/stricaud/faup.git
+    - cd faup
+    - mkdir build
+    - cd build
+    - cmake .. && make
+    - sudo make install
+    - sudo ldconfig
     - pip install -r requirements.txt
     - pip install coveralls
     - pip install codecov
