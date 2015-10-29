@@ -53,7 +53,7 @@ url=https://www.circl.lu/
 url=https://uqapi.net/v3/json
 
 [EUPI]
-url=https://fr.dev.phishing-initiative.net
+url=https://phishing-initiative.fr
 
 [domain]
 ignore=
