@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/CIRCL/url-abuse.svg?branch=master)](https://travis-ci.org/CIRCL/url-abuse)
+
 #URL Abuse
 
 URL Abuse is a versatile free software for URL review, analysis and black-list reporting. URL Abuse is composed of a web interface where requests are submitted asynchronously and a back-end system to process the URLs into features modules.
