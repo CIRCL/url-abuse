@@ -1,0 +1,3 @@
+[submodule "uwhoisd"]
+	path = uwhoisd
+	url = https://github.com/Rafiot/uwhoisd.git

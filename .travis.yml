@@ -21,6 +21,9 @@ install:
     - python setup.py install
     - popd
     - pip install -r requirements.txt
+    - pushd uwhoisd
+    - python setup.py install
+    - popd
     - pip install coveralls
     - pip install codecov
     - cp config.ini.sample config.ini
