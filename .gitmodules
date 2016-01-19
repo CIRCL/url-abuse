@@ -1,3 +1,9 @@
 [submodule "uwhoisd"]
 	path = uwhoisd
 	url = https://github.com/Rafiot/uwhoisd.git
+[submodule "faup"]
+	path = faup
+	url = https://github.com/stricaud/faup.git
+[submodule "redis"]
+	path = redis
+	url = https://github.com/antirez/redis.git

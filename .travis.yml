@@ -4,6 +4,7 @@ python:
     - "2.7"
 
 sudo: required
+dist: trusty
 
 addons:
     apt:
@@ -11,7 +12,7 @@ addons:
             - parallel
 
 install:
-    - git clone git://github.com/stricaud/faup.git
+    # Faup
     - pushd faup/build
     - cmake .. && make
     - sudo make install
@@ -20,21 +21,33 @@ install:
     - pushd faup/src/lib/bindings/python
     - python setup.py install
     - popd
-    - pip install -r requirements.txt
+    # redis
+    - pushd redis
+    - make
+    - popd
+    # Run uwhoisd
     - pushd uwhoisd
     - python setup.py install
+    - ../redis/src/redis-server extra/redis.conf --daemonize yes
+    - sleep 10
+    - uwhoisd extra/uwhoisd.ini &
     - popd
+    # Other Python deps
+    - pip install -r requirements.txt
     - pip install coveralls
     - pip install codecov
-    - cp config.ini.sample config.ini
 
 before_script:
-    - redis-server /etc/redis/redis.conf --port 6334 --daemonize yes
+    - cp config.ini.sample config.ini
+    - redis/src/redis-server --port 6334  --daemonize yes
+    - sleep 10
 
 script:
     - ./worker.py &
     - ./runapp.py &
-    - sleep 30
+    - sleep 5
+    - curl http://0.0.0.0:5100/
+    - sleep 20
 
 after_success:
     - coveralls
