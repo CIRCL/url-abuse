@@ -20,15 +20,15 @@ import re
 import sys
 import logging
 from pypdns import PyPDNS
-import bgpranking_web
-import urlquery
+# import bgpranking_web
+# import urlquery
 from pypssl import PyPSSL
 from pyeupi import PyEUPI
 import requests
 from bs4 import BeautifulSoup
 
 try:
-    import sphinxapi
+    # import sphinxapi
     sphinx = True
 except:
     sphinx = False
@@ -40,7 +40,7 @@ r_cache = None
 def _cache_init(host='localhost', port=6334, db=1):
     global r_cache
     if enable_cache and r_cache is None:
-        r_cache = redis.Redis(host, port, db=db)
+        r_cache = redis.Redis(host, port, db=db, decode_responses=True)
 
 
 def _cache_set(key, value, field=None):
@@ -128,7 +128,12 @@ def is_valid_url(url):
 
 
 def is_ip(host):
-    if ':' in host:
+    if isinstance(host, bytes):
+        to_search = b':'
+    else:
+        to_search = ':'
+
+    if to_search in host:
         try:
             socket.inet_pton(socket.AF_INET6, host)
             return True
@@ -173,8 +178,11 @@ def get_urls(url, depth=1):
                 out = result["content"].split(";")
                 if len(out) == 2:
                     wait, text = out
-                    a, url = text.split('=', 1)
-                    return url.strip()
+                    try:
+                        a, url = text.split('=', 1)
+                        return url.strip()
+                    except:
+                        print(text)
         return None
 
     resolve, reason = try_resolve(fex, url)
@@ -240,7 +248,7 @@ def dns_resolve(url):
         return cached
     fex = Faup()
     fex.decode(url)
-    host = fex.get_host().lower()
+    host = fex.get_host().decode().lower()
     ipv4 = None
     ipv6 = None
     if is_ip(host):
@@ -291,6 +299,9 @@ def phish_query(url, key, query):
 
 
 def sphinxsearch(server, port, url, query):
+    # WARNING: too dangerous to have on the public interface
+    return ''
+    """
     if not sphinx:
         return None
     cached = _cache_get(query, 'sphinx')
@@ -309,6 +320,8 @@ def sphinxsearch(server, port, url, query):
             result.append(ticket_link)
     _cache_set(query, result, 'sphinx')
     return result
+
+    """
 
 
 def vt_query_url(url, url_up, key, query, upload=True):
@@ -344,6 +357,7 @@ def gsb_query(url, query):
 
 
 def urlquery_query(url, key, query):
+    return None
     cached = _cache_get(query, 'urlquery')
     if cached is not None:
         return cached
@@ -400,15 +414,15 @@ def whois(server, port, domain, ignorelist, replacelist):
         d = fex.get_domain().lower()
     else:
         d = domain
-    s.send(d + "\r\n")
-    response = ''
+    s.send(("{}\r\n".format(d)).encode())
+    response = b''
     while True:
         d = s.recv(4096)
         response += d
-        if d == '':
+        if d == b'':
             break
     s.close()
-    match = re.findall(r'[\w\.-]+@[\w\.-]+', response)
+    match = re.findall(r'[\w\.-]+@[\w\.-]+', response.decode())
     emails = process_emails(match, ignorelist, replacelist)
     if len(emails) == 0:
         return None
@@ -469,6 +483,7 @@ def eupi(url, key, q):
 
 
 def bgpranking(ip):
+    return None, None, None, None, None, None
     cached = _cache_get(ip, 'bgp')
     if cached is not None:
         return cached
@@ -481,7 +496,19 @@ def bgpranking(ip):
     position, total = bgpranking_web.cached_position(asn)
     asn_descr = rank_info[1]
     rank = rank_info[-1]
-    response = (ptrr, asn_descr, asn, int(position), int(total), float(rank))
+    if position:
+        position = int(position)
+    else:
+        position = -1
+    if total:
+        total = int(total)
+    else:
+        total = 0
+    if rank:
+        rank = float(rank)
+    else:
+        rank = -1
+    response = (ptrr, asn_descr, asn, position, total, rank)
     _cache_set(ip, response, 'bgp')
     return response
 

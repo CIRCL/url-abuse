@@ -1,8 +1,8 @@
 {% raw %}
 
-<accordion>
-  <accordion-group is-open=true>
-    <accordion-heading>{{url}}</accordion-heading>
+<uib-accordion>
+  <div uib-accordion-group is-open=true>
+    <uib-accordion-heading>{{url}}</uib-accordion-heading>
     <uq-phishtank data="url"></uq-phishtank>
     <uq-virustotal data="url"></uq-virustotal>
     <uq-googlesafebrowsing data="url"></uq-googlesafebrowsing>
@@ -12,9 +12,9 @@
     <uq-whois data="url"></uq-whois><br>
 
     <div ng-repeat="ip in ipv4">
-      <accordion>
-        <accordion-group is-open=true>
-          <accordion-heading>{{ip}}</accordion-heading>
+      <uib-accordion>
+        <div uib-accordion-group is-open=true>
+          <uib-accordion-heading>{{ip}}</uib-accordion-heading>
           <uq-phishtank data="ip"></uq-phishtank>
           <!-- <li><uq-virustotal data="ip"></uq-virustotal></li> -->
           <uq-bgpranking data="ip"></uq-bgpranking>
@@ -23,14 +23,14 @@
           <uq-psslcircl data="ip"></uq-psslcircl>
           <uq-ticket data="ip"></uq-ticket>
           <uq-whois data="ip"></uq-whois>
-        </accordion-group>
-      </accordion>
+        </div>
+      </uib-accordion>
     </div>
 
     <div ng-repeat="ip in ipv6">
-      <accordion>
-        <accordion-group is-open=true>
-        <accordion-heading>{{ip}}</accordion-heading>
+      <uib-accordion>
+        <div uib-accordion-group is-open=true>
+        <uib-accordion-heading>{{ip}}</uib-accordion-heading>
           <uq-phishtank data="ip"></uq-phishtank>
           <!-- <li><uq-virustotal data="ip"></uq-virustotal></li> -->
           <!--<li><uq-bgpranking data="ip"></uq-bgpranking></li>-->
@@ -38,10 +38,10 @@
           <uq-pdnscircl data="ip"></uq-pdnscircl>
           <uq-ticket data="ip"></uq-ticket>
           <uq-whois data="ip"></uq-whois>
-        </accordion-group>
-      </accordion>
+        </div>
+      </uib-accordion>
     </div>
-  </accordion-group>
-</accordion>
+  </div>
+</uib-accordion>
 
 {% endraw %}

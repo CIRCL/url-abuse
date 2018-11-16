@@ -153,32 +153,32 @@ def create_app(configfile=None):
 
     @app.route('/start', methods=['POST'])
     def run_query():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         url = data["url"]
         ip = _get_user_ip(request)
         app.logger.info('{} {}'.format(ip, url))
-        if get_submissions(url) >= autosend_threshold:
+        if get_submissions(url) and get_submissions(url) >= autosend_threshold:
             send(url, '', True)
         is_valid = q.enqueue_call(func=is_valid_url, args=(url,), result_ttl=500)
         return is_valid.get_id()
 
     @app.route('/urls', methods=['POST'])
     def urls():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         url = data["url"]
         u = q.enqueue_call(func=url_list, args=(url,), result_ttl=500)
         return u.get_id()
 
     @app.route('/resolve', methods=['POST'])
     def resolve():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         url = data["url"]
         u = q.enqueue_call(func=dns_resolve, args=(url,), result_ttl=500)
         return u.get_id()
 
     @app.route('/phishtank', methods=['POST'])
     def phishtank():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         if not os.path.exists('phishtank.key'):
             return None
         url = parser.get("PHISHTANK", "url")
@@ -189,7 +189,7 @@ def create_app(configfile=None):
 
     @app.route('/virustotal_report', methods=['POST'])
     def vt():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         if not os.path.exists('virustotal.key'):
             return None
         url = parser.get("VIRUSTOTAL", "url_report")
@@ -201,7 +201,7 @@ def create_app(configfile=None):
 
     @app.route('/googlesafebrowsing', methods=['POST'])
     def gsb():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         if not os.path.exists('googlesafebrowsing.key'):
             return None
         url = parser.get("GOOGLESAFEBROWSING", "url")
@@ -213,7 +213,7 @@ def create_app(configfile=None):
 
     @app.route('/urlquery', methods=['POST'])
     def urlquery():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         if not os.path.exists('urlquery.key'):
             return None
         url = parser.get("URLQUERY", "url")
@@ -226,7 +226,7 @@ def create_app(configfile=None):
     def ticket():
         if not request.authorization:
             return ''
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         server = parser.get("SPHINX", "server")
         port = int(parser.get("SPHINX", "port"))
         url = parser.get("ITS", "url")
@@ -237,11 +237,11 @@ def create_app(configfile=None):
 
     @app.route('/whois', methods=['POST'])
     def whoismail():
-        if not request.authorization:
-            return ''
+        # if not request.authorization:
+        #    return ''
         server = parser.get("WHOIS", "server")
         port = parser.getint("WHOIS", "port")
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=whois, args=(server, port, query, ignorelist, replacelist),
                            result_ttl=500)
@@ -249,7 +249,7 @@ def create_app(configfile=None):
 
     @app.route('/eupi', methods=['POST'])
     def eu():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         if not os.path.exists('eupi.key'):
             return None
         url = parser.get("EUPI", "url")
@@ -262,7 +262,7 @@ def create_app(configfile=None):
     def dnscircl():
         url = parser.get("PDNS_CIRCL", "url")
         user, password = open('pdnscircl.key', 'r').readlines()
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=pdnscircl, args=(url, user.strip(), password.strip(),
                                                  query,), result_ttl=500)
@@ -270,7 +270,7 @@ def create_app(configfile=None):
 
     @app.route('/bgpranking', methods=['POST'])
     def bgpr():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=bgpranking, args=(query,), result_ttl=500)
         return u.get_id()
@@ -279,7 +279,7 @@ def create_app(configfile=None):
     def sslcircl():
         url = parser.get("PSSL_CIRCL", "url")
         user, password = open('psslcircl.key', 'r').readlines()
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=psslcircl, args=(url, user.strip(), password.strip(),
                                                  query,), result_ttl=500)
@@ -287,7 +287,7 @@ def create_app(configfile=None):
 
     @app.route('/get_cache', methods=['POST'])
     def get_cache():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         url = data["query"]
         data = cached(url)
         dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
@@ -347,7 +347,7 @@ def create_app(configfile=None):
 
     @app.route('/submit', methods=['POST'])
     def send_mail():
-        data = json.loads(request.data)
+        data = json.loads(request.data.decode())
         url = data["url"]
         if not get_mail_sent(url):
             ip = _get_user_ip(request)

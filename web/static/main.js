@@ -26,15 +26,20 @@
           poller: function myself(jobID, callback) {
             var timeout = "";
             // fire another request
-            $http.get('_result/' + jobID).
-                success(function(data, status, headers, config) {
-                    if(status === 202) {
+            $http.get('_result/' + jobID.data).
+                then(function(data) {
+                    if(data.status === 202) {
                         $log.log(data, status);
-                    } else if (status === 200){
-                        $log.log(data);
+                    } else if (data.status === 200){
+                        $log.log(data.data);
                         $timeout.cancel(timeout);
-                        callback(angular.fromJson(data));
-                        return;
+                        if (data.data === "null"){
+                            $log.log('Got null data');
+                            return;
+                        } else {
+                            callback(data.data);
+                            return;
+                        };
                     }
                     // continue to call the poller() function every 2 seconds
                     // until the timout is cancelled
@@ -43,8 +48,7 @@
           },
           query: function(path, data, callback) {
             $http.post(path, data).
-                success(callback).
-                error(function(error) {
+                then(callback, function(error) {
                     $log.log(error);
                 });
           }
