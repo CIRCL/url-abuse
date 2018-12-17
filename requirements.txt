@@ -1,9 +1,5 @@
-flask
-flask-bootstrap
-flask-mail
-flask-wtf
 rq
-redis
+redis>=3
 pypssl
 pypdns
 pyeupi

@@ -19,3 +19,5 @@ ui-bootstrap-tpls.min.js
 build
 dist
 *egg-info
+
+*.rdb

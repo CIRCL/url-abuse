@@ -1,10 +1,11 @@
 import json
 import os
+from pathlib import Path
 
 from flask import Flask, render_template, request, Response, redirect, url_for
 from flask_mail import Mail, Message
 from flask_bootstrap import Bootstrap
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.widgets import TextInput
 from wtforms.validators import Required
@@ -15,19 +16,18 @@ from logging import Formatter
 
 from rq import Queue
 from rq.job import Job
-from worker import conn
+from redis import Redis
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
-# from pyfaup.faup import Faup
+from urlabuse.helpers import get_socket_path
+
+import configparser
 from .proxied import ReverseProxied
-from url_abuse_async import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
+from urlabuse.urlabuse import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
     vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
     cached, get_mail_sent, set_mail_sent, get_submissions, eupi
 
-config_path = 'config.ini'
+
+config_dir = Path('config')
 
 
 class AngularTextInput(TextInput):
@@ -37,7 +37,7 @@ class AngularTextInput(TextInput):
         return super(AngularTextInput, self).__call__(field, **kwargs)
 
 
-class URLForm(Form):
+class URLForm(FlaskForm):
     url = StringField('URL Field',
                       description='Enter the URL you want to lookup here.',
                       validators=[Required()], widget=AngularTextInput())
@@ -58,9 +58,9 @@ def prepare_auth():
         return None
     to_return = {}
     with open('users.key', 'r') as f:
-        for l in f:
-            l = l.strip()
-            user, password = l.split('=')
+        for line in f:
+            line = line.strip()
+            user, password = line.split('=')
             to_return[user] = password
     return to_return
 
@@ -73,7 +73,7 @@ def create_app(configfile=None):
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     Bootstrap(app)
-    q = Queue(connection=conn)
+    q = Queue(connection=Redis(unix_socket_path=get_socket_path('cache')))
 
     # Mail Config
     app.config['MAIL_SERVER'] = 'localhost'
@@ -82,7 +82,7 @@ def create_app(configfile=None):
 
     app.config['SECRET_KEY'] = 'devkey'
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-    app.config['configfile'] = config_path
+    app.config['configfile'] = config_dir / 'config.ini'
 
     parser = configparser.SafeConfigParser()
     parser.read(app.config['configfile'])
@@ -145,7 +145,7 @@ def create_app(configfile=None):
     def check_valid(job_key):
         if job_key is None:
             return json.dumps(None), 200
-        job = Job.fetch(job_key, connection=conn)
+        job = Job.fetch(job_key, connection=Redis(unix_socket_path=get_socket_path('cache')))
         if job.is_finished:
             return json.dumps(job.result), 200
         else:
@@ -176,36 +176,49 @@ def create_app(configfile=None):
         u = q.enqueue_call(func=dns_resolve, args=(url,), result_ttl=500)
         return u.get_id()
 
+    def read_auth(name):
+        key = config_dir / f'{name}.key'
+        if not key.exists():
+            return None
+        with open(key) as f:
+            to_return = []
+            for line in f.readlines():
+                to_return.append(line.strip())
+            return to_return
+
     @app.route('/phishtank', methods=['POST'])
     def phishtank():
-        data = json.loads(request.data.decode())
-        if not os.path.exists('phishtank.key'):
+        auth = read_auth('phishtank')
+        if not auth:
             return None
+        key = auth[0]
+        data = json.loads(request.data.decode())
         url = parser.get("PHISHTANK", "url")
-        key = open('phishtank.key', 'r').readline().strip()
         query = data["query"]
         u = q.enqueue_call(func=phish_query, args=(url, key, query,), result_ttl=500)
         return u.get_id()
 
     @app.route('/virustotal_report', methods=['POST'])
     def vt():
-        data = json.loads(request.data.decode())
-        if not os.path.exists('virustotal.key'):
+        auth = read_auth('virustotal')
+        if not auth:
             return None
+        key = auth[0]
+        data = json.loads(request.data.decode())
         url = parser.get("VIRUSTOTAL", "url_report")
         url_up = parser.get("VIRUSTOTAL", "url_upload")
-        key = open('virustotal.key', 'r').readline().strip()
         query = data["query"]
         u = q.enqueue_call(func=vt_query_url, args=(url, url_up, key, query,), result_ttl=500)
         return u.get_id()
 
     @app.route('/googlesafebrowsing', methods=['POST'])
     def gsb():
-        data = json.loads(request.data.decode())
-        if not os.path.exists('googlesafebrowsing.key'):
+        auth = read_auth('googlesafebrowsing')
+        if not auth:
             return None
+        key = auth[0]
+        data = json.loads(request.data.decode())
         url = parser.get("GOOGLESAFEBROWSING", "url")
-        key = open('googlesafebrowsing.key', 'r').readline().strip()
         url = url.format(key)
         query = data["query"]
         u = q.enqueue_call(func=gsb_query, args=(url, query,), result_ttl=500)
@@ -213,11 +226,12 @@ def create_app(configfile=None):
 
     @app.route('/urlquery', methods=['POST'])
     def urlquery():
-        data = json.loads(request.data.decode())
-        if not os.path.exists('urlquery.key'):
+        auth = read_auth('urlquery')
+        if not auth:
             return None
+        key = auth[0]
+        data = json.loads(request.data.decode())
         url = parser.get("URLQUERY", "url")
-        key = open('urlquery.key', 'r').readline().strip()
         query = data["query"]
         u = q.enqueue_call(func=urlquery_query, args=(url, key, query,), result_ttl=500)
         return u.get_id()
@@ -249,19 +263,23 @@ def create_app(configfile=None):
 
     @app.route('/eupi', methods=['POST'])
     def eu():
-        data = json.loads(request.data.decode())
-        if not os.path.exists('eupi.key'):
+        auth = read_auth('eupi')
+        if not auth:
             return None
+        key = auth[0]
+        data = json.loads(request.data.decode())
         url = parser.get("EUPI", "url")
-        key = open('eupi.key', 'r').readline().strip()
         query = data["query"]
         u = q.enqueue_call(func=eupi, args=(url, key, query,), result_ttl=500)
         return u.get_id()
 
     @app.route('/pdnscircl', methods=['POST'])
     def dnscircl():
+        auth = read_auth('pdnscircl')
+        if not auth:
+            return None
+        user, password = auth
         url = parser.get("PDNS_CIRCL", "url")
-        user, password = open('pdnscircl.key', 'r').readlines()
         data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=pdnscircl, args=(url, user.strip(), password.strip(),
@@ -277,8 +295,12 @@ def create_app(configfile=None):
 
     @app.route('/psslcircl', methods=['POST'])
     def sslcircl():
+        auth = read_auth('psslcircl')
+        if not auth:
+            return None
+        user, password = auth
+        url = parser.get("PDNS_CIRCL", "url")
         url = parser.get("PSSL_CIRCL", "url")
-        user, password = open('psslcircl.key', 'r').readlines()
         data = json.loads(request.data.decode())
         query = data["query"]
         u = q.enqueue_call(func=psslcircl, args=(url, user.strip(), password.strip(),

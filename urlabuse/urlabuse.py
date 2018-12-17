@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #
 # Copyright (C) 2014 Sascha Rommelfangen, Raphael Vinot
@@ -8,10 +8,9 @@
 from datetime import date
 import json
 import redis
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
+from .helpers import get_socket_path
+
 
 from pyfaup.faup import Faup
 import socket
@@ -20,8 +19,15 @@ import re
 import sys
 import logging
 from pypdns import PyPDNS
-# import bgpranking_web
-# import urlquery
+try:
+    import bgpranking_web
+except Exception:
+    pass
+
+try:
+    import urlquery
+except Exception:
+    pass
 from pypssl import PyPSSL
 from pyeupi import PyEUPI
 import requests
@@ -30,17 +36,17 @@ from bs4 import BeautifulSoup
 try:
     # import sphinxapi
     sphinx = True
-except:
+except Exception:
     sphinx = False
 
 enable_cache = True
 r_cache = None
 
 
-def _cache_init(host='localhost', port=6334, db=1):
+def _cache_init():
     global r_cache
     if enable_cache and r_cache is None:
-        r_cache = redis.Redis(host, port, db=db, decode_responses=True)
+        r_cache = redis.Redis(unix_socket_path=get_socket_path('cache'), db=1, decode_responses=True)
 
 
 def _cache_set(key, value, field=None):
@@ -108,7 +114,7 @@ def set_mail_sent(url, day=None):
 def is_valid_url(url):
     cached = _cache_get(url, 'valid')
     key = date.today().isoformat() + '_submissions'
-    r_cache.zincrby(key, url)
+    r_cache.zincrby(key, 1, url)
     if cached is not None:
         return cached
     fex = Faup()
@@ -137,13 +143,13 @@ def is_ip(host):
         try:
             socket.inet_pton(socket.AF_INET6, host)
             return True
-        except:
+        except Exception:
             pass
     else:
         try:
             socket.inet_aton(host)
             return True
-        except:
+        except Exception:
             pass
     return False
 
@@ -181,7 +187,7 @@ def get_urls(url, depth=1):
                     try:
                         a, url = text.split('=', 1)
                         return url.strip()
-                    except:
+                    except Exception:
                         print(text)
         return None
 
@@ -197,7 +203,7 @@ def get_urls(url, depth=1):
     try:
         response = requests.get(url, allow_redirects=True, headers=headers,
                                 timeout=15, verify=False)
-    except:
+    except Exception:
         # That one can fail (DNS for example)
         # FIXME: inform that the get failed
         yield url
@@ -248,7 +254,7 @@ def dns_resolve(url):
         return cached
     fex = Faup()
     fex.decode(url)
-    host = fex.get_host().decode().lower()
+    host = fex.get_host().lower()
     ipv4 = None
     ipv6 = None
     if is_ip(host):
@@ -256,22 +262,22 @@ def dns_resolve(url):
             try:
                 socket.inet_pton(socket.AF_INET6, host)
                 ipv6 = [host]
-            except:
+            except Exception:
                 pass
         else:
             try:
                 socket.inet_aton(host)
                 ipv4 = [host]
-            except:
+            except Exception:
                 pass
     else:
         try:
             ipv4 = [str(ip) for ip in dns.resolver.query(host, 'A')]
-        except:
+        except Exception:
             logging.debug("No IPv4 address assigned to: " + host)
         try:
             ipv6 = [str(ip) for ip in dns.resolver.query(host, 'AAAA')]
-        except:
+        except Exception:
             logging.debug("No IPv6 address assigned to: " + host)
     _cache_set(url, (ipv4, ipv6), 'dns')
     return ipv4, ipv6
@@ -365,7 +371,7 @@ def urlquery_query(url, key, query):
         urlquery.url = url
         urlquery.key = key
         response = urlquery.search(query)
-    except:
+    except Exception:
         return None
     if response['_response_']['status'] == 'ok':
         if response.get('reports') is not None:
