@@ -39,35 +39,32 @@ try:
 except Exception:
     sphinx = False
 
-enable_cache = True
 r_cache = None
 
 
 def _cache_init():
     global r_cache
-    if enable_cache and r_cache is None:
+    if r_cache is None:
         r_cache = redis.Redis(unix_socket_path=get_socket_path('cache'), db=1, decode_responses=True)
 
 
 def _cache_set(key, value, field=None):
     _cache_init()
-    if enable_cache:
-        if field is None:
-            r_cache.setex(key, json.dumps(value), 3600)
-        else:
-            r_cache.hset(key, field, json.dumps(value))
-            r_cache.expire(key, 3600)
+    if field is None:
+        r_cache.setex(key, json.dumps(value), 3600)
+    else:
+        r_cache.hset(key, field, json.dumps(value))
+        r_cache.expire(key, 3600)
 
 
 def _cache_get(key, field=None):
     _cache_init()
-    if enable_cache:
-        if field is None:
-            value_json = r_cache.get(key)
-        else:
-            value_json = r_cache.hget(key, field)
-        if value_json is not None:
-            return json.loads(value_json)
+    if field is None:
+        value_json = r_cache.get(key)
+    else:
+        value_json = r_cache.hget(key, field)
+    if value_json is not None:
+        return json.loads(value_json)
     return None
 
 
@@ -80,35 +77,32 @@ def to_bool(s):
 
 def get_submissions(url, day=None):
     _cache_init()
-    if enable_cache:
-        if day is None:
-            day = date.today().isoformat()
-        else:
-            day = day.isoformat()
-        key = date.today().isoformat() + '_submissions'
-        return r_cache.zscore(key, url)
+    if day is None:
+        day = date.today().isoformat()
+    else:
+        day = day.isoformat()
+    key = date.today().isoformat() + '_submissions'
+    return r_cache.zscore(key, url)
 
 
 def get_mail_sent(url, day=None):
     _cache_init()
-    if enable_cache:
-        if day is None:
-            day = date.today().isoformat()
-        else:
-            day = day.isoformat()
-        key = date.today().isoformat() + '_mails'
-        return r_cache.sismember(key, url)
+    if day is None:
+        day = date.today().isoformat()
+    else:
+        day = day.isoformat()
+    key = date.today().isoformat() + '_mails'
+    return r_cache.sismember(key, url)
 
 
 def set_mail_sent(url, day=None):
     _cache_init()
-    if enable_cache:
-        if day is None:
-            day = date.today().isoformat()
-        else:
-            day = day.isoformat()
-        key = date.today().isoformat() + '_mails'
-        return r_cache.sadd(key, url)
+    if day is None:
+        day = date.today().isoformat()
+    else:
+        day = day.isoformat()
+    key = date.today().isoformat() + '_mails'
+    return r_cache.sadd(key, url)
 
 
 def is_valid_url(url):
@@ -545,8 +539,6 @@ def get_url_data(url):
 
 def cached(url):
     _cache_init()
-    if not enable_cache:
-        return [url]
     url_data = get_url_data(url)
     to_return = [url_data]
     if url_data[url].get('list') is not None:
