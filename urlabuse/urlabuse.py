@@ -10,6 +10,7 @@ import json
 import redis
 from urllib.parse import quote
 from .helpers import get_socket_path
+import ipaddress
 
 
 from pyfaup.faup import Faup
@@ -128,24 +129,11 @@ def is_valid_url(url):
 
 
 def is_ip(host):
-    if isinstance(host, bytes):
-        to_search = b':'
-    else:
-        to_search = ':'
-
-    if to_search in host:
-        try:
-            socket.inet_pton(socket.AF_INET6, host)
-            return True
-        except Exception:
-            pass
-    else:
-        try:
-            socket.inet_aton(host)
-            return True
-        except Exception:
-            pass
-    return False
+    try:
+        ipaddress.ip_address(host)
+        return True
+    except ValueError:
+        return False
 
 
 def try_resolve(fex, url):
