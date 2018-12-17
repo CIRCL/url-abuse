@@ -179,7 +179,7 @@ def create_app(configfile=None):
     def read_auth(name):
         key = config_dir / f'{name}.key'
         if not key.exists():
-            return None
+            return ''
         with open(key) as f:
             to_return = []
             for line in f.readlines():
@@ -190,7 +190,7 @@ def create_app(configfile=None):
     def phishtank():
         auth = read_auth('phishtank')
         if not auth:
-            return None
+            return ''
         key = auth[0]
         data = json.loads(request.data.decode())
         url = parser.get("PHISHTANK", "url")
@@ -202,7 +202,7 @@ def create_app(configfile=None):
     def vt():
         auth = read_auth('virustotal')
         if not auth:
-            return None
+            return ''
         key = auth[0]
         data = json.loads(request.data.decode())
         url = parser.get("VIRUSTOTAL", "url_report")
@@ -215,7 +215,7 @@ def create_app(configfile=None):
     def gsb():
         auth = read_auth('googlesafebrowsing')
         if not auth:
-            return None
+            return ''
         key = auth[0]
         data = json.loads(request.data.decode())
         url = parser.get("GOOGLESAFEBROWSING", "url")
@@ -228,7 +228,7 @@ def create_app(configfile=None):
     def urlquery():
         auth = read_auth('urlquery')
         if not auth:
-            return None
+            return ''
         key = auth[0]
         data = json.loads(request.data.decode())
         url = parser.get("URLQUERY", "url")
@@ -265,7 +265,7 @@ def create_app(configfile=None):
     def eu():
         auth = read_auth('eupi')
         if not auth:
-            return None
+            return ''
         key = auth[0]
         data = json.loads(request.data.decode())
         url = parser.get("EUPI", "url")
@@ -277,7 +277,7 @@ def create_app(configfile=None):
     def dnscircl():
         auth = read_auth('pdnscircl')
         if not auth:
-            return None
+            return ''
         user, password = auth
         url = parser.get("PDNS_CIRCL", "url")
         data = json.loads(request.data.decode())
@@ -297,7 +297,7 @@ def create_app(configfile=None):
     def sslcircl():
         auth = read_auth('psslcircl')
         if not auth:
-            return None
+            return ''
         user, password = auth
         url = parser.get("PDNS_CIRCL", "url")
         url = parser.get("PSSL_CIRCL", "url")
