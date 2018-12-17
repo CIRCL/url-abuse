@@ -479,7 +479,7 @@ def eupi(url, key, q):
     if cached is not None:
         return cached
     eu = PyEUPI(key, url)
-    response = eu.search_url(q)
+    response = eu.search_url(url=q)
     if response.get('results'):
         r = response.get('results')[0]['tag_label']
         _cache_set(q, r, 'eupi')
