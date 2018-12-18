@@ -2,6 +2,8 @@
 
 # URL Abuse
 
+![URL Abuse logo](./doc/logo/logo-circl.png?raw=true "URL Abuse")
+
 URL Abuse is a versatile free software for URL review, analysis and black-list reporting. URL Abuse is composed of a web interface where requests are submitted asynchronously and a back-end system to process the URLs into features modules.
 
 ## Features
@@ -18,9 +20,11 @@ URL Abuse is a versatile free software for URL review, analysis and black-list r
 
 Please note that some of the API services will require an API key. The API keys should be located in the root of the URL Abuse directory.
 
-## Demo
+## Online version
 
-[CIRCL URL Abuse](https://www.circl.lu/urlabuse/) is online.
+- [CIRCL URL Abuse](https://www.circl.lu/urlabuse/) is online.
+
+If you don't want to use the online version or run your own version of URL Abuse, you can follow the install process below.
 
 ## Install
 
