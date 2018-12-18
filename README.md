@@ -69,7 +69,8 @@ Look at the existings functions/modules. The changes will have to be made in the
 * Add a statement in web/templates/url-report.html. The data option is the parameter to pass to the javascript directive
 * Add a directive in web/static/main.js, it will take care of passing the parameter to the backend and regularly pull for the response of the async call
 
-## Partner
+## Partner and Funding
 
-URL Abuse is being developed as part of the [“European Union anti-Phishing Initiative”](http://phishing-initiative.eu/) (EU PI) project. This project is coordinated by Cert-Lexsi and co-funded by the Prevention of and Fight against Crime programme of the European Union.
+URL Abuse was being developed as part of the [“European Union anti-Phishing Initiative”](http://phishing-initiative.eu/) (EU PI) project. This project was coordinated by Cert-Lexsi and co-funded by the Prevention of and Fight against Crime programme of the European Union.
 
+URL Abuse is currently supported and funded by [CIRCL](https://www.circl.lu/) ( Computer Incident Response Center Luxembourg).
