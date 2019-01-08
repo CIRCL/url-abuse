@@ -4,6 +4,7 @@ pypssl
 pypdns
 pyeupi
 dnspython
-bgpranking-web
-urlquery
 beautifulsoup4
+
+git+https://github.com/D4-project/IPASN-History.git/#egg=pyipasnhistory&subdirectory=client
+git+https://github.com/D4-project/BGP-Ranking.git/#egg=pybgpranking&subdirectory=client

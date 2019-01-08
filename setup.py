@@ -12,7 +12,7 @@ setup(
     url='https://github.com/CIRCL/url-abuse/',
     description='URL Abuse interface',
     packages=['urlabuse'],
-    scripts=['bin/run_backend.py', 'bin/run_workers.py'],
+    scripts=['bin/run_backend.py', 'bin/run_workers.py', 'bin/start.py'],
     classifiers=[
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Development Status :: 3 - Alpha',

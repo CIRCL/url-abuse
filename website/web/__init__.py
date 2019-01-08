@@ -23,7 +23,7 @@ from urlabuse.helpers import get_socket_path
 import configparser
 from .proxied import ReverseProxied
 from urlabuse.urlabuse import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
-    vt_query_url, gsb_query, urlquery_query, sphinxsearch, whois, pdnscircl, bgpranking, \
+    vt_query_url, gsb_query, sphinxsearch, whois, pdnscircl, bgpranking, \
     cached, get_mail_sent, set_mail_sent, get_submissions, eupi
 
 
@@ -224,6 +224,7 @@ def create_app(configfile=None):
         u = q.enqueue_call(func=gsb_query, args=(url, query,), result_ttl=500)
         return u.get_id()
 
+    '''
     @app.route('/urlquery', methods=['POST'])
     def urlquery():
         auth = read_auth('urlquery')
@@ -235,6 +236,7 @@ def create_app(configfile=None):
         query = data["query"]
         u = q.enqueue_call(func=urlquery_query, args=(url, key, query,), result_ttl=500)
         return u.get_id()
+    '''
 
     @app.route('/ticket', methods=['POST'])
     def ticket():

@@ -5,7 +5,7 @@
 # Copyright (C) 2014 CIRCL Computer Incident Response Center Luxembourg (SMILE gie)
 #
 
-from datetime import date
+from datetime import date, timedelta
 import json
 import redis
 from urllib.parse import quote
@@ -20,15 +20,10 @@ import re
 import sys
 import logging
 from pypdns import PyPDNS
-try:
-    import bgpranking_web
-except Exception:
-    pass
+from pyipasnhistory import IPASNHistory
+from pybgpranking import BGPRanking
 
-try:
-    import urlquery
-except Exception:
-    pass
+
 from pypssl import PyPSSL
 from pyeupi import PyEUPI
 import requests
@@ -344,6 +339,7 @@ def gsb_query(url, query):
         return response.text
 
 
+'''
 def urlquery_query(url, key, query):
     return None
     cached = _cache_get(query, 'urlquery')
@@ -366,6 +362,7 @@ def urlquery_query(url, key, query):
                 return total_alert_count
         else:
             return None
+'''
 
 
 def process_emails(emails, ignorelist, replacelist):
@@ -471,34 +468,36 @@ def eupi(url, key, q):
 
 
 def bgpranking(ip):
-    return None, None, None, None, None, None
-    cached = _cache_get(ip, 'bgp')
+    cached = _cache_get(ip, 'ipasn')
+    if cached is not None:
+        asn = cached['asn']
+        prefix = cached['prefix']
+    else:
+        ipasn = IPASNHistory()
+        response = ipasn.query(ip)
+        if 'response' not in response:
+            asn = None
+            prefix = None
+        entry = response['response'][list(response['response'].keys())[0]]
+        _cache_set(ip, entry, 'ipasn')
+        asn = entry['asn']
+        prefix = entry['prefix']
+
+    if not asn or not prefix:
+        # asn, prefix, asn_descr, rank, position, known_asns
+        return None, None, None, None, None, None
+
+    cached = _cache_get(asn, 'bgp')
     if cached is not None:
         return cached
-    details = bgpranking_web.ip_lookup(ip, 7)
-    ptrr = details.get('ptrrecord')
-    if details.get('history') is None or len(details.get('history')) == 0:
-        return ptrr, None, None, None, None, None
-    asn = details['history'][0].get('asn')
-    rank_info = bgpranking_web.cached_daily_rank(asn)
-    position, total = bgpranking_web.cached_position(asn)
-    asn_descr = rank_info[1]
-    rank = rank_info[-1]
-    if position:
-        position = int(position)
-    else:
-        position = -1
-    if total:
-        total = int(total)
-    else:
-        total = 0
-    if rank:
-        rank = float(rank)
-    else:
-        rank = -1
-    response = (ptrr, asn_descr, asn, position, total, rank)
-    _cache_set(ip, response, 'bgp')
-    return response
+    bgpranking = BGPRanking()
+    response = bgpranking.query(asn, date=(date.today() - timedelta(1)).isoformat())
+    if 'response' not in response:
+        return None, None, None, None, None, None
+    to_return = (asn, prefix, response['response']['asn_description'], response['response']['ranking']['rank'],
+                 response['response']['ranking']['position'], response['response']['ranking']['total_known_asns'])
+    _cache_set(asn, to_return, 'bgp')
+    return to_return
 
 
 def _deserialize_cached(entry):

@@ -321,12 +321,12 @@
             link: function(scope, element, attrs) {
                 var get_response = function(jobID) {
                   globFct.poller(jobID, function(data){
-                      scope.ptr = data[0];
-                      scope.asndesc = data[1];
-                      scope.asn = data[2];
-                      scope.position = data[3];
-                      scope.total = data[4];
-                      scope.value = data[5];
+                      scope.asndesc = data[2];
+                      scope.asn = data[0];
+                      scope.prefix = data[1];
+                      scope.position = data[4];
+                      scope.total = data[5];
+                      scope.value = data[3];
                       if (scope.position < 100){
                           scope.alert_val = "danger";
                       } else if (scope.position < 1000){
@@ -338,7 +338,7 @@
                 };
                 globFct.query('bgpranking', {"query": scope.query}, get_response);
             },
-            template: '<div ng-show="asn" class="animate-show"><alert type="{{alert_val}}">Information from BGP Ranking: <ul><li ng-show="ptr">PTR Resource Record: {{ptr}}</li><li>Announced by: {{asndesc}} (<a target="_blank" ng-href="http://bgpranking.circl.lu/asn_details?asn={{asn}}">{{asn}}</a>)</li><li>This ASN is at position {{position}} in the list of {{total}} known ASNs ({{value}}).</li></ul></alert></div>'
+            template: '<div ng-show="asn" class="animate-show"><alert type="{{alert_val}}">Information from BGP Ranking: <ul><li>Announced by: {{asndesc}} (<a target="_blank" ng-href="http://bgpranking-ng.circl.lu/asn?asn={{asn}}">{{asn}}</a>)</li><li>This ASN is at position {{position}} in the list of {{total}} known ASNs ({{value}}).</li></ul></alert></div>'
         };
     });
 }());
