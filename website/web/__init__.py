@@ -146,9 +146,9 @@ def create_app(configfile=None):
     @app.route("/_result/<job_key>", methods=['GET'])
     def check_valid(job_key):
         if not job_key or not queue.exists(job_key):
-            return json.dumps(None), 200
+            return Response(json.dumps(None), mimetype='application/json'), 200
         if not queue.hexists(job_key, 'result'):
-            return json.dumps("Nay!"), 202
+            return Response(json.dumps('Nay!'), mimetype='application/json'), 202
         result = queue.hget(job_key, 'result')
         queue.delete(job_key)
         return Response(result, mimetype='application/json'), 200
@@ -294,11 +294,10 @@ def create_app(configfile=None):
 
     @app.route('/get_cache', methods=['POST'])
     def get_cache():
-        data = json.loads(request.data.decode())
+        data = request.get_json(force=True)
         url = data["query"]
         data = urlabuse_query.cached(url)
-        dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
-        return dumped
+        return Response(json.dumps(data), mimetype='application/json')
 
     def digest(data):
         to_return = ''
@@ -355,7 +354,7 @@ def create_app(configfile=None):
 
     @app.route('/submit', methods=['POST'])
     def send_mail():
-        data = json.loads(request.data.decode())
+        data = request.get_json(force=True)
         url = data["url"]
         if not urlabuse_query.get_mail_sent(url):
             ip = _get_user_ip(request)
