@@ -1,4 +1,3 @@
-rq
 redis>=3
 pypssl
 pypdns

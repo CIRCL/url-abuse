@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import argparse
+
+from pyurlabuse import PyURLAbuse
+import json
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run a query against URL Abuse')
+    parser.add_argument('--url', type=str, help='URL of the instance.')
+
+    parser.add_argument('--query', help='URL to lookup')
+
+    args = parser.parse_args()
+
+    if args.url:
+        urlabuse = PyURLAbuse(args.url)
+    else:
+        urlabuse = PyURLAbuse()
+
+    response = urlabuse.run_query(args.query)
+    print(json.dumps(response, indent=2))

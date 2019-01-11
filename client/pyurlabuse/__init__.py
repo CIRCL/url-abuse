@@ -1,1 +1,1 @@
-from api import PyURLAbuse
+from .api import PyURLAbuse

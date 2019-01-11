@@ -4,27 +4,31 @@
 import json
 import requests
 import time
+from urllib.parse import urljoin
 
 
 class PyURLAbuse(object):
 
-    # def __init__(self, url='https://www.circl.lu/urlabuse/'):
-    def __init__(self, url='http://0.0.0.0:5100/'):
+    def __init__(self, url='https://www.circl.lu/urlabuse/'):
         self.url = url
 
         self.session = requests.Session()
         self.session.headers.update({'content-type': 'application/json'})
 
+    @property
+    def is_up(self):
+        r = self.session.head(self.root_url)
+        return r.status_code == 200
+
     def get_result(self, job_id):
-        response = self.session.get('{}_result/{}' .format(self.url, job_id))
+        response = self.session.get(urljoin(self.url, f'_result/{job_id}'))
         if response.status_code == 202:
             return None
         else:
             return response.json()
 
     def _async(self, path, query):
-        response = self.session.post('{}{}' .format(self.url, path),
-                                     data=json.dumps(query))
+        response = self.session.post(urljoin(self.url, path), data=json.dumps(query))
         return response.text
 
     def start(self, q):
@@ -102,7 +106,7 @@ class PyURLAbuse(object):
         done = []
         while waiting:
             waiting = False
-            for u, job_id in res.iteritems():
+            for u, job_id in res.items():
                 if job_id in done:
                     continue
                 ips = self.get_result(job_id)
@@ -132,5 +136,5 @@ class PyURLAbuse(object):
 
     def get_cache(self, q):
         query = {'query': q}
-        response = self.session.post('{}get_cache' .format(self.url), data=json.dumps(query))
+        response = self.session.post(urljoin(self.url, 'get_cache'), data=json.dumps(query))
         return response.json()

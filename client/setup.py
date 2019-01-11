@@ -12,6 +12,7 @@ setup(
     description='Python API for URL Abuse.',
     long_description=open('README.md').read(),
     packages=['pyurlabuse'],
+    scripts=['bin/urlabuse'],
     classifiers=[
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Development Status :: 3 - Alpha',

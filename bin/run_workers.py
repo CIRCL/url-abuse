@@ -2,17 +2,29 @@
 # -*- coding: utf-8 -*-
 import argparse
 from multiprocessing import Pool
-from rq import Worker, Queue, Connection
 from redis import Redis
 from urlabuse.helpers import get_socket_path
+from urlabuse.urlabuse import Query
+import json
+import time
 
 
 def worker(process_id: int):
-    listen = ['default']
-    cache_socket = get_socket_path('cache')
-    with Connection(Redis(unix_socket_path=cache_socket)):
-        worker = Worker(list(map(Queue, listen)))
-        worker.work()
+    urlabuse_query = Query()
+    queue = Redis(unix_socket_path=get_socket_path('cache'), db=0,
+                  decode_responses=True)
+    while True:
+        jobid = queue.spop('to_process')
+        if not jobid:
+            time.sleep(.1)
+            continue
+        to_process = queue.hgetall(jobid)
+        parameters = json.loads(to_process['data'])
+        try:
+            result = getattr(urlabuse_query, to_process['method'])(**parameters)
+            queue.hset(jobid, 'result', json.dumps(result))
+        except Exception as e:
+            print(e, to_process)
 
 
 if __name__ == '__main__':

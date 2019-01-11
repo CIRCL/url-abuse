@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import uuid
 
 from flask import Flask, render_template, request, Response, redirect, url_for
 from flask_mail import Mail, Message
@@ -14,17 +15,13 @@ import logging
 from logging.handlers import RotatingFileHandler
 from logging import Formatter
 
-from rq import Queue
-from rq.job import Job
 from redis import Redis
 
 from urlabuse.helpers import get_socket_path
+from urlabuse.urlabuse import Query
 
 import configparser
 from .proxied import ReverseProxied
-from urlabuse.urlabuse import is_valid_url, url_list, dns_resolve, phish_query, psslcircl, \
-    vt_query_url, gsb_query, sphinxsearch, whois, pdnscircl, bgpranking, \
-    cached, get_mail_sent, set_mail_sent, get_submissions, eupi
 
 
 config_dir = Path('config')
@@ -73,7 +70,9 @@ def create_app(configfile=None):
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     Bootstrap(app)
-    q = Queue(connection=Redis(unix_socket_path=get_socket_path('cache')))
+    queue = Redis(unix_socket_path=get_socket_path('cache'), db=0,
+                  decode_responses=True)
+    urlabuse_query = Query()
 
     # Mail Config
     app.config['MAIL_SERVER'] = 'localhost'
@@ -102,6 +101,9 @@ def create_app(configfile=None):
 
     @app.route('/', methods=['GET', 'POST'])
     def index():
+        if request.method == 'HEAD':
+            # Just returns ack if the webserver is running
+            return 'Ack'
         form = URLForm()
         return render_template('index.html', form=form)
 
@@ -143,38 +145,41 @@ def create_app(configfile=None):
 
     @app.route("/_result/<job_key>", methods=['GET'])
     def check_valid(job_key):
-        if job_key is None:
+        if not job_key or not queue.exists(job_key):
             return json.dumps(None), 200
-        job = Job.fetch(job_key, connection=Redis(unix_socket_path=get_socket_path('cache')))
-        if job.is_finished:
-            return json.dumps(job.result), 200
-        else:
+        if not queue.hexists(job_key, 'result'):
             return json.dumps("Nay!"), 202
+        result = queue.hget(job_key, 'result')
+        queue.delete(job_key)
+        return Response(result, mimetype='application/json'), 200
+
+    def enqueue(method, data):
+        job_id = str(uuid.uuid4())
+        p = queue.pipeline()
+        p.hmset(job_id, {'method': method, 'data': json.dumps(data)})
+        p.sadd('to_process', job_id)
+        p.execute()
+        return job_id
 
     @app.route('/start', methods=['POST'])
     def run_query():
-        data = json.loads(request.data.decode())
+        data = request.get_json(force=True)
         url = data["url"]
         ip = _get_user_ip(request)
-        app.logger.info('{} {}'.format(ip, url))
-        if get_submissions(url) and get_submissions(url) >= autosend_threshold:
+        app.logger.info(f'{ip} {url}')
+        if urlabuse_query.get_submissions(url) and urlabuse_query.get_submissions(url) >= autosend_threshold:
             send(url, '', True)
-        is_valid = q.enqueue_call(func=is_valid_url, args=(url,), result_ttl=500)
-        return is_valid.get_id()
+        return enqueue('is_valid_url', {'url': url})
 
     @app.route('/urls', methods=['POST'])
     def urls():
-        data = json.loads(request.data.decode())
-        url = data["url"]
-        u = q.enqueue_call(func=url_list, args=(url,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('url_list', {'url': data["url"]})
 
     @app.route('/resolve', methods=['POST'])
     def resolve():
-        data = json.loads(request.data.decode())
-        url = data["url"]
-        u = q.enqueue_call(func=dns_resolve, args=(url,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('dns_resolve', {'url': data["url"]})
 
     def read_auth(name):
         key = config_dir / f'{name}.key'
@@ -191,25 +196,19 @@ def create_app(configfile=None):
         auth = read_auth('phishtank')
         if not auth:
             return ''
-        key = auth[0]
-        data = json.loads(request.data.decode())
-        url = parser.get("PHISHTANK", "url")
-        query = data["query"]
-        u = q.enqueue_call(func=phish_query, args=(url, key, query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('phish_query', {'url': parser.get("PHISHTANK", "url"),
+                                       'key': auth[0], 'query': data["query"]})
 
     @app.route('/virustotal_report', methods=['POST'])
     def vt():
         auth = read_auth('virustotal')
         if not auth:
             return ''
-        key = auth[0]
-        data = json.loads(request.data.decode())
-        url = parser.get("VIRUSTOTAL", "url_report")
-        url_up = parser.get("VIRUSTOTAL", "url_upload")
-        query = data["query"]
-        u = q.enqueue_call(func=vt_query_url, args=(url, url_up, key, query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('vt_query_url', {'url': parser.get("VIRUSTOTAL", "url_report"),
+                                        'url_up': parser.get("VIRUSTOTAL", "url_upload"),
+                                        'key': auth[0], 'query': data["query"]})
 
     @app.route('/googlesafebrowsing', methods=['POST'])
     def gsb():
@@ -217,12 +216,10 @@ def create_app(configfile=None):
         if not auth:
             return ''
         key = auth[0]
-        data = json.loads(request.data.decode())
-        url = parser.get("GOOGLESAFEBROWSING", "url")
-        url = url.format(key)
-        query = data["query"]
-        u = q.enqueue_call(func=gsb_query, args=(url, query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        url = parser.get("GOOGLESAFEBROWSING", "url").format(key)
+        return enqueue('gsb_query', {'url': url,
+                                     'query': data["query"]})
 
     '''
     @app.route('/urlquery', methods=['POST'])
@@ -236,7 +233,6 @@ def create_app(configfile=None):
         query = data["query"]
         u = q.enqueue_call(func=urlquery_query, args=(url, key, query,), result_ttl=500)
         return u.get_id()
-    '''
 
     @app.route('/ticket', methods=['POST'])
     def ticket():
@@ -250,30 +246,24 @@ def create_app(configfile=None):
         u = q.enqueue_call(func=sphinxsearch, args=(server, port, url, query,),
                            result_ttl=500)
         return u.get_id()
+    '''
 
     @app.route('/whois', methods=['POST'])
     def whoismail():
-        # if not request.authorization:
-        #    return ''
-        server = parser.get("WHOIS", "server")
-        port = parser.getint("WHOIS", "port")
-        data = json.loads(request.data.decode())
-        query = data["query"]
-        u = q.enqueue_call(func=whois, args=(server, port, query, ignorelist, replacelist),
-                           result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('whois', {'server': parser.get("WHOIS", "server"),
+                                 'port': parser.getint("WHOIS", "port"),
+                                 'domain': data["query"],
+                                 'ignorelist': ignorelist, 'replacelist': replacelist})
 
     @app.route('/eupi', methods=['POST'])
     def eu():
         auth = read_auth('eupi')
         if not auth:
             return ''
-        key = auth[0]
-        data = json.loads(request.data.decode())
-        url = parser.get("EUPI", "url")
-        query = data["query"]
-        u = q.enqueue_call(func=eupi, args=(url, key, query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('eupi', {'url': parser.get("EUPI", "url"),
+                                'key': auth[0], 'query': data["query"]})
 
     @app.route('/pdnscircl', methods=['POST'])
     def dnscircl():
@@ -282,18 +272,14 @@ def create_app(configfile=None):
             return ''
         user, password = auth
         url = parser.get("PDNS_CIRCL", "url")
-        data = json.loads(request.data.decode())
-        query = data["query"]
-        u = q.enqueue_call(func=pdnscircl, args=(url, user.strip(), password.strip(),
-                                                 query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('pdnscircl', {'url': url, 'user': user.strip(),
+                                     'passwd': password.strip(), 'q': data["query"]})
 
     @app.route('/bgpranking', methods=['POST'])
     def bgpr():
-        data = json.loads(request.data.decode())
-        query = data["query"]
-        u = q.enqueue_call(func=bgpranking, args=(query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('bgpranking', {'ip': data["query"]})
 
     @app.route('/psslcircl', methods=['POST'])
     def sslcircl():
@@ -301,19 +287,16 @@ def create_app(configfile=None):
         if not auth:
             return ''
         user, password = auth
-        url = parser.get("PDNS_CIRCL", "url")
         url = parser.get("PSSL_CIRCL", "url")
-        data = json.loads(request.data.decode())
-        query = data["query"]
-        u = q.enqueue_call(func=psslcircl, args=(url, user.strip(), password.strip(),
-                                                 query,), result_ttl=500)
-        return u.get_id()
+        data = request.get_json(force=True)
+        return enqueue('psslcircl', {'url': url, 'user': user.strip(),
+                                     'passwd': password.strip(), 'q': data["query"]})
 
     @app.route('/get_cache', methods=['POST'])
     def get_cache():
         data = json.loads(request.data.decode())
         url = data["query"]
-        data = cached(url)
+        data = urlabuse_query.cached(url)
         dumped = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
         return dumped
 
@@ -356,9 +339,10 @@ def create_app(configfile=None):
         return to_return
 
     def send(url, ip='', autosend=False):
-        if not get_mail_sent(url):
-            set_mail_sent(url)
-            data = cached(url)
+        return
+        if not urlabuse_query.get_mail_sent(url):
+            urlabuse_query.set_mail_sent(url)
+            data = urlabuse_query.cached(url)
             if not autosend:
                 subject = 'URL Abuse report from ' + ip
             else:
@@ -373,7 +357,7 @@ def create_app(configfile=None):
     def send_mail():
         data = json.loads(request.data.decode())
         url = data["url"]
-        if not get_mail_sent(url):
+        if not urlabuse_query.get_mail_sent(url):
             ip = _get_user_ip(request)
             send(url, ip)
         return redirect(url_for('index'))
