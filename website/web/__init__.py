@@ -263,7 +263,7 @@ def create_app(configfile=None):
             return ''
         data = request.get_json(force=True)
         return enqueue('eupi', {'url': parser.get("EUPI", "url"),
-                                'key': auth[0], 'query': data["query"]})
+                                'key': auth[0], 'q': data["query"]})
 
     @app.route('/pdnscircl', methods=['POST'])
     def dnscircl():
