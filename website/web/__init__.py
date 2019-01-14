@@ -322,7 +322,7 @@ def create_app(configfile=None):
                         for ip in ipv4:
                             to_return += '\t' + ip + '\n'
                             data = info[ip]
-                            if data.get('bgp'):
+                            if data.get('bgpranking'):
                                 to_return += '\t\t(PTR: {}) is announced by {} ({}).\n'.format(*(data.get('bgp')[:3]))
                             if data.get('whois'):
                                 all_mails.update(data.get('whois'))
@@ -331,6 +331,8 @@ def create_app(configfile=None):
                         for ip in ipv6:
                             to_return += '\t' + ip + '\n'
                             data = info[ip]
+                            if data.get('bgpranking'):
+                                to_return += '\t\t(PTR: {}) is announced by {} ({}).\n'.format(*(data.get('bgp')[:3]))
                             if data.get('whois'):
                                 all_mails.update(data.get('whois'))
                                 to_return += '\t\tContacts: {}\n'.format(', '.join(data.get('whois')))

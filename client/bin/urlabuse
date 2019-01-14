@@ -12,6 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--url', type=str, help='URL of the instance.')
 
     parser.add_argument('--query', help='URL to lookup')
+    parser.add_argument('--email', action='store_true', help='Return the email template')
 
     args = parser.parse_args()
 
@@ -20,5 +21,8 @@ if __name__ == '__main__':
     else:
         urlabuse = PyURLAbuse()
 
-    response = urlabuse.run_query(args.query)
-    print(json.dumps(response, indent=2))
+    response = urlabuse.run_query(args.query, args.email)
+    if args.email:
+        print(response['mail'])
+    else:
+        print(json.dumps(response, indent=2))

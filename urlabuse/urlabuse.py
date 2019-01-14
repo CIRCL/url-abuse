@@ -460,7 +460,7 @@ class Query():
             # asn, prefix, asn_descr, rank, position, known_asns
             return None, None, None, None, None, None
 
-        cached = self._cache_get(asn, 'bgp')
+        cached = self._cache_get(ip, 'bgpranking')
         if cached is not None:
             return cached
         bgpranking = BGPRanking()
@@ -469,38 +469,45 @@ class Query():
             return None, None, None, None, None, None
         to_return = (asn, prefix, response['response']['asn_description'], response['response']['ranking']['rank'],
                      response['response']['ranking']['position'], response['response']['ranking']['total_known_asns'])
-        self._cache_set(asn, to_return, 'bgp')
+        self._cache_set(ip, to_return, 'bgpranking')
         return to_return
 
     def _deserialize_cached(self, entry):
         to_return = {}
+        redirects = []
         h = self.cache.hgetall(entry)
-        for key, value in list(h.items()):
-            to_return[key] = json.loads(value)
-        return to_return
+        for key, value in h.items():
+            v = json.loads(value)
+            if key == 'list':
+                redirects = v
+                continue
+            to_return[key] = v
+        return to_return, redirects
 
     def get_url_data(self, url):
-        data = self._deserialize_cached(url)
+        data, redirects = self._deserialize_cached(url)
         if data.get('dns') is not None:
             ipv4, ipv6 = data['dns']
             ip_data = {}
             if ipv4 is not None:
                 for ip in ipv4:
-                    ip_data[ip] = self._deserialize_cached(ip)
+                    info, _ = self._deserialize_cached(ip)
+                    ip_data[ip] = info
             if ipv6 is not None:
                 for ip in ipv6:
-                    ip_data[ip] = self._deserialize_cached(ip)
+                    info, _ = self._deserialize_cached(ip)
+                    ip_data[ip] = info
             if len(ip_data) > 0:
                 data.update(ip_data)
-        return {url: data}
+        return {url: data}, redirects
 
     def cached(self, url):
-        url_data = self.get_url_data(url)
+        url_data, redirects = self.get_url_data(url)
         to_return = [url_data]
-        if url_data[url].get('list') is not None:
-            url_redirs = url_data[url]['list']
-            for u in url_redirs:
+        if redirects:
+            for u in redirects:
                 if u == url:
                     continue
-                to_return.append(self.get_url_data(u))
+                data, redir = self.get_url_data(u)
+                to_return.append(data)
         return to_return
