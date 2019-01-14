@@ -338,7 +338,6 @@ def create_app(configfile=None):
         return to_return
 
     def send(url, ip='', autosend=False):
-        return
         if not urlabuse_query.get_mail_sent(url):
             urlabuse_query.set_mail_sent(url)
             data = urlabuse_query.cached(url)
