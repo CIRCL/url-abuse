@@ -296,62 +296,26 @@ def create_app(configfile=None):
     def get_cache():
         data = request.get_json(force=True)
         url = data["query"]
-        data = urlabuse_query.cached(url)
+        if 'digest' in data:
+            digest = data["digest"]
+        else:
+            digest = False
+        data = urlabuse_query.cached(url, digest)
         return Response(json.dumps(data), mimetype='application/json')
-
-    def digest(data):
-        to_return = ''
-        all_mails = set()
-        for entry in data:
-            for url, info in list(entry.items()):
-                to_return += '\n{}\n'.format(url)
-                if info.get('whois'):
-                    all_mails.update(info.get('whois'))
-                    to_return += '\tContacts: {}\n'.format(', '.join(info.get('whois')))
-                if info.get('vt') and len(info.get('vt')) == 4:
-                    vtstuff = info.get('vt')
-                    to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
-                        vtstuff[2], vtstuff[3], vtstuff[1])
-                if info.get('gsb'):
-                    to_return += '\tKnown as malicious on Google Safe Browsing: {}\n'.format(info.get('gsb'))
-                if info.get('phishtank'):
-                    to_return += '\tKnown as malicious on PhishTank\n'
-                if info.get('dns'):
-                    ipv4, ipv6 = info.get('dns')
-                    if ipv4 is not None:
-                        for ip in ipv4:
-                            to_return += '\t' + ip + '\n'
-                            data = info[ip]
-                            if data.get('bgpranking'):
-                                to_return += '\t\t(PTR: {}) is announced by {} ({}).\n'.format(*(data.get('bgp')[:3]))
-                            if data.get('whois'):
-                                all_mails.update(data.get('whois'))
-                                to_return += '\t\tContacts: {}\n'.format(', '.join(data.get('whois')))
-                    if ipv6 is not None:
-                        for ip in ipv6:
-                            to_return += '\t' + ip + '\n'
-                            data = info[ip]
-                            if data.get('bgpranking'):
-                                to_return += '\t\t(PTR: {}) is announced by {} ({}).\n'.format(*(data.get('bgp')[:3]))
-                            if data.get('whois'):
-                                all_mails.update(data.get('whois'))
-                                to_return += '\t\tContacts: {}\n'.format(', '.join(data.get('whois')))
-            to_return += '\tAll contacts: {}\n'.format(', '.join(all_mails))
-        return to_return
 
     def send(url, ip='', autosend=False):
         if not urlabuse_query.get_mail_sent(url):
-            urlabuse_query.set_mail_sent(url)
             data = urlabuse_query.cached(url)
             if not autosend:
                 subject = 'URL Abuse report from ' + ip
             else:
                 subject = 'URL Abuse report sent automatically'
             msg = Message(subject, sender='urlabuse@circl.lu', recipients=["info@circl.lu"])
-            msg.body = digest(data)
+            msg.body = urlabuse_query.digest(data)
             msg.body += '\n\n'
-            msg.body += json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+            msg.body += json.dumps(data, sort_keys=True, indent=2)
             mail.send(msg)
+            urlabuse_query.set_mail_sent(url)
 
     @app.route('/submit', methods=['POST'])
     def send_mail():

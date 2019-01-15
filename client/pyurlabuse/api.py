@@ -21,7 +21,7 @@ class PyURLAbuse(object):
         return r.status_code == 200
 
     def get_result(self, job_id):
-        response = self.session.get(urljoin(self.url, f'_result/{job_id}'))
+        response = self.session.get(urljoin(self.url, '_result/{}'.format(job_id)))
         if response.status_code == 202:
             return None
         else:
@@ -117,13 +117,11 @@ class PyURLAbuse(object):
                             content.append('\t\tVirusTotal positive detections: {} out of {}'.format(res[1], res[2]))
         return '\n\n '.join(content)
 
-    def run_query(self, q, return_mail_template=False):
-        cached = self.get_cache(q)
-        if len(cached[0][q]) > 0:
-            to_return = {'info': 'Used cached content', 'result': cached}
-            if return_mail_template:
-                to_return['mail'] = self.make_mail_template(cached)
-            return to_return
+    def run_query(self, q, with_digest=False):
+        cached = self.get_cache(q, with_digest)
+        if len(cached['result']) > 0:
+            cached['info'] = 'Used cached content'
+            return cached
         job_id = self.urls(q)
         all_urls = None
         while True:
@@ -174,13 +172,11 @@ class PyURLAbuse(object):
                 waiting = True
                 time.sleep(.5)
         time.sleep(1)
-        cached = self.get_cache(q)
-        to_return = {'info': 'New query, all the details may not be available.', 'result': cached}
-        if return_mail_template:
-            to_return['mail'] = self.make_mail_template(cached)
-        return to_return
+        cached = self.get_cache(q, with_digest)
+        cached['info'] = 'New query, all the details may not be available.'
+        return cached
 
-    def get_cache(self, q):
-        query = {'query': q}
+    def get_cache(self, q, digest=False):
+        query = {'query': q, 'digest': digest}
         response = self.session.post(urljoin(self.url, 'get_cache'), data=json.dumps(query))
         return response.json()

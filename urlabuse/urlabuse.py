@@ -501,13 +501,58 @@ class Query():
                 data.update(ip_data)
         return {url: data}, redirects
 
-    def cached(self, url):
+    def cached(self, url, digest=False):
         url_data, redirects = self.get_url_data(url)
         to_return = [url_data]
-        if redirects:
-            for u in redirects:
-                if u == url:
-                    continue
-                data, redir = self.get_url_data(u)
-                to_return.append(data)
+        for u in redirects:
+            if u == url:
+                continue
+            data, redir = self.get_url_data(u)
+            to_return.append(data)
+        if digest:
+            return {'result': to_return, 'digest': self.digest(to_return)}
+        return {'result': to_return}
+
+    def ip_details_digest(self, ips, all_info, all_asns, all_mails):
+        to_return = ''
+        for ip in ips:
+            to_return += '\t' + ip + '\n'
+            data = all_info[ip]
+            if data.get('bgpranking'):
+                to_return += '\t\tis announced by {} ({}). Position {}/{}.'.format(
+                    data['bgpranking'][2], data['bgpranking'][0],
+                    data['bgpranking'][4], data['bgpranking'][5])
+                all_asns.add('{} ({})'.format(data['bgpranking'][2], data['bgpranking'][0]))
+            if data.get('whois'):
+                all_mails.update(data.get('whois'))
+                to_return += '\n\t\tContacts: {}\n'.format(', '.join(data.get('whois')))
         return to_return
+
+    def digest(self, data):
+        to_return = ''
+        all_mails = set()
+        all_asns = set()
+        for entry in data:
+            # Each URL we're redirected to
+            for url, info in entry.items():
+                # info contains the information we got for the URL.
+                to_return += '\n{}\n'.format(url)
+                if 'whois' in info:
+                    all_mails.update(info['whois'])
+                    to_return += '\tContacts: {}\n'.format(', '.join(info['whois']))
+                if 'vt' in info and len(info['vt']) == 4:
+                    to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
+                        info['vt'][2], info['vt'][3], info['vt'][1])
+                if 'gsb' in info:
+                    to_return += '\tKnown as malicious on Google Safe Browsing: {}\n'.format(info['gsb'])
+                if 'phishtank' in info:
+                    to_return += '\tKnown on PhishTank: {}\n'.format(info['phishtank'])
+
+                if 'dns'in info:
+                    ipv4, ipv6 = info['dns']
+                    if ipv4 is not None:
+                        to_return += self.ip_details_digest(ipv4, info, all_asns, all_mails)
+                    if ipv6 is not None:
+                        to_return += self.ip_details_digest(ipv6, info, all_asns, all_mails)
+        to_return += '\n\tAll contacts: {}\n'.format(', '.join(all_mails))
+        return to_return, list(all_mails), list(all_asns)
