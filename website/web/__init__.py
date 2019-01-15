@@ -311,7 +311,7 @@ def create_app(configfile=None):
             else:
                 subject = 'URL Abuse report sent automatically'
             msg = Message(subject, sender='urlabuse@circl.lu', recipients=["info@circl.lu"])
-            msg.body = data['digest']
+            msg.body = data['digest'][0]
             msg.body += '\n\n'
             msg.body += json.dumps(data['result'], sort_keys=True, indent=2)
             mail.send(msg)
