@@ -305,15 +305,15 @@ def create_app(configfile=None):
 
     def send(url, ip='', autosend=False):
         if not urlabuse_query.get_mail_sent(url):
-            data = urlabuse_query.cached(url)
+            data = urlabuse_query.cached(url, digest=True)
             if not autosend:
                 subject = 'URL Abuse report from ' + ip
             else:
                 subject = 'URL Abuse report sent automatically'
             msg = Message(subject, sender='urlabuse@circl.lu', recipients=["info@circl.lu"])
-            msg.body = urlabuse_query.digest(data)
+            msg.body = data['digest']
             msg.body += '\n\n'
-            msg.body += json.dumps(data, sort_keys=True, indent=2)
+            msg.body += json.dumps(data['result'], sort_keys=True, indent=2)
             mail.send(msg)
             urlabuse_query.set_mail_sent(url)
 
