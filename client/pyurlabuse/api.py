@@ -79,44 +79,6 @@ class PyURLAbuse(object):
         query = {'query': q}
         return self._async('psslcircl', query)
 
-    def make_mail_template(self, results):
-        content = []
-
-        for result in results:
-            url = list(result.keys())[0]
-            details = list(result.values())[0]
-            content.append(url)
-            if 'googlesafebrowsing' in details:
-                content.append('\tKnown as malicious on Google Safe Browsing: {}'.format(details.get('googlesafebrowsing')))
-
-            if 'phishtank' in details:
-                content.append('\tKnown as on PhishTank: {}'.format(details.get('phishtank')))
-
-            if 'vt' in details and details.get('vt'):
-                vt_res = details.get('vt')
-                if int(vt_res[2]) != 0:
-                    content.append('\tVirusTotal positive detections: {} out of {}'.format(vt_res[2], vt_res[3]))
-
-            # IPs
-            if 'dns' not in details:
-                content.append('No DNS resolutions.')
-                continue
-            for ip_list in details['dns']:
-                if not ip_list:
-                    continue
-                for ip in ip_list:
-                    ip_details = details[ip]
-                    content.append('\t' + ip)
-                    if 'bgpranking' in ip_details:
-                        content.append('\t\t is announced by {} ({}). Position {}/{}.'.format(
-                            ip_details['bgpranking'][2], ip_details['bgpranking'][0], ip_details['bgpranking'][4],
-                            ip_details['bgpranking'][5]))
-                    if ip_details.get('virustotal'):
-                        res = ip_details.get('virustotal')
-                        if res[0] == 1 and int(res[1]) != 0:
-                            content.append('\t\tVirusTotal positive detections: {} out of {}'.format(res[1], res[2]))
-        return '\n\n '.join(content)
-
     def run_query(self, q, with_digest=False):
         cached = self.get_cache(q, with_digest)
         if len(cached['result']) > 0:
@@ -171,7 +133,7 @@ class PyURLAbuse(object):
                             self.whoismail(ip)
                 waiting = True
                 time.sleep(.5)
-        time.sleep(1)
+        time.sleep(3)
         cached = self.get_cache(q, with_digest)
         cached['info'] = 'New query, all the details may not be available.'
         return cached
