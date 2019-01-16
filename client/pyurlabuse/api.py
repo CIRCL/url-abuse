@@ -79,11 +79,41 @@ class PyURLAbuse(object):
         query = {'query': q}
         return self._async('psslcircl', query)
 
+    def _update_cache(self, cached):
+        for result in cached['result']:
+            for url, items in result.items():
+                self.resolve(url)
+                self.phishtank(url)
+                self.virustotal(url)
+                self.googlesafebrowsing(url)
+                self.urlquery(url)
+                self.ticket(url)
+                self.whoismail(url)
+                if 'dns' not in items:
+                    continue
+                for entry in items['dns']:
+                    if entry is None:
+                        continue
+                    for ip in entry:
+                        self.phishtank(ip)
+                        self.bgpr(ip)
+                        self.urlquery(ip)
+                        self.pdnscircl(ip)
+                        self.sslcircl(ip)
+                        self.whoismail(ip)
+
     def run_query(self, q, with_digest=False):
         cached = self.get_cache(q, with_digest)
         if len(cached['result']) > 0:
-            cached['info'] = 'Used cached content'
-            return cached
+            has_cached_content = True
+            self._update_cache(cached)
+            for r in cached['result']:
+                for url, content in r.items():
+                    if not content:
+                        has_cached_content = False
+            if has_cached_content:
+                cached['info'] = 'Used cached content'
+                return cached
         job_id = self.urls(q)
         all_urls = None
         while True:
@@ -121,7 +151,6 @@ class PyURLAbuse(object):
                             self.urlquery(ip)
                             self.pdnscircl(ip)
                             self.sslcircl(ip)
-                            self.ticket(ip)
                             self.whoismail(ip)
                     if v6 is not None:
                         for ip in v6:
@@ -129,11 +158,10 @@ class PyURLAbuse(object):
                             self.bgpr(ip)
                             self.urlquery(ip)
                             self.pdnscircl(ip)
-                            self.ticket(ip)
                             self.whoismail(ip)
                 waiting = True
                 time.sleep(.5)
-        time.sleep(3)
+        time.sleep(1)
         cached = self.get_cache(q, with_digest)
         cached['info'] = 'New query, all the details may not be available.'
         return cached

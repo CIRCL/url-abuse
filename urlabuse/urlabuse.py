@@ -287,7 +287,7 @@ class Query():
 
     def vt_query_url(self, url, url_up, key, query, upload=True):
         cached = self._cache_get(query, 'vt')
-        if cached is not None:
+        if cached is not None and cached[2] is not None:
             return cached
         parameters = {"resource": query, "apikey": key}
         if upload:
@@ -300,8 +300,7 @@ class Query():
         link = res.get("permalink")
         positives = res.get("positives")
         total = res.get("total")
-        if positives is not None:
-            self._cache_set(query, (msg, link, positives, total), 'vt')
+        self._cache_set(query, (msg, link, positives, total), 'vt')
         return msg, link, positives, total
 
     def gsb_query(self, url, query):
@@ -519,7 +518,7 @@ class Query():
             to_return += '\t' + ip + '\n'
             data = all_info[ip]
             if data.get('bgpranking'):
-                to_return += '\t\tis announced by {} ({}). Position {}/{}.'.format(
+                to_return += '\t\tis announced by {} ({}). Position {}/{}.\n'.format(
                     data['bgpranking'][2], data['bgpranking'][0],
                     data['bgpranking'][4], data['bgpranking'][5])
                 all_asns.add('{} ({})'.format(data['bgpranking'][2], data['bgpranking'][0]))
@@ -539,8 +538,11 @@ class Query():
                 if 'whois' in info:
                     all_mails.update(info['whois'])
                 if 'vt' in info and len(info['vt']) == 4:
-                    to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
-                        info['vt'][2], info['vt'][3], info['vt'][1])
+                    if info['vt'][2] is not None:
+                        to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
+                            info['vt'][2], info['vt'][3], info['vt'][1])
+                    else:
+                        to_return = '\t{} - {}\n'.format(info['vt'][0], info['vt'][1])
                 if 'gsb' in info:
                     to_return += '\tKnown as malicious on Google Safe Browsing: {}\n'.format(info['gsb'])
                 if 'phishtank' in info:
