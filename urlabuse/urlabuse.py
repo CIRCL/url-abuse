@@ -525,7 +525,6 @@ class Query():
                 all_asns.add('{} ({})'.format(data['bgpranking'][2], data['bgpranking'][0]))
             if data.get('whois'):
                 all_mails.update(data.get('whois'))
-                to_return += '\n\t\tContacts: {}\n'.format(', '.join(data.get('whois')))
         return to_return
 
     def digest(self, data):
@@ -539,7 +538,6 @@ class Query():
                 to_return += '\n{}\n'.format(url)
                 if 'whois' in info:
                     all_mails.update(info['whois'])
-                    to_return += '\tContacts: {}\n'.format(', '.join(info['whois']))
                 if 'vt' in info and len(info['vt']) == 4:
                     to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
                         info['vt'][2], info['vt'][3], info['vt'][1])
@@ -554,5 +552,4 @@ class Query():
                         to_return += self.ip_details_digest(ipv4, info, all_asns, all_mails)
                     if ipv6 is not None:
                         to_return += self.ip_details_digest(ipv6, info, all_asns, all_mails)
-        to_return += '\n\tAll contacts: {}\n'.format(', '.join(all_mails))
         return to_return, list(all_mails), list(all_asns)
