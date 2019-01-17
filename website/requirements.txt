@@ -1,4 +1,0 @@
-flask
-flask-bootstrap
-flask-mail
-flask-wtf

@@ -28,37 +28,47 @@ If you don't want to use the online version or run your own version of URL Abuse
 
 ## Install
 
-Install the requirements
+**IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
 
-~~~
-pip install -r requirements.txt
-~~~
+**NOTE**: Yes, it requires python3.6+. No, it will never support anything older.
 
-Copy and review the configuration:
+## Install redis
 
-~~~
+```bash
+git clone https://github.com/antirez/redis.git
+cd redis
+git checkout 5.0
+make
+make test
+cd ..
+```
+
+# Install Faup
+
+```bash
+git clone git://github.com/stricaud/faup.git
+cd faup
+mkdir build
+cd build
+cmake .. && make
+sudo make install
+```
+
+## Install & run URL Abuse
+
+```bash
+git clone https://github.com/CIRCL/url-abuse.git
+cd url-abuse
+pipenv install
+echo URLABUSE_HOME="'`pwd`'" > .env
+pipenv shell
+# Copy and review the configuration:
 cp config.ini.sample config.ini
-~~~
-
-Install Redis and update the configuration.
-
-Start the Redis back-end
-
-~~~
-./run_redis.sh
-~~~
-
-Start the workers (at least 10)
-
-~~~
-seq 10 | parallel -u -j 10 ./worker.py
-~~~
-
-Start the web interface
-
-~~~
-python runapp.py
-~~~
+# Starts all the backend
+start.py
+# Start the web interface
+start_website.py
+```
 
 ## Contributing
 

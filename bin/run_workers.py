@@ -13,6 +13,7 @@ def worker(process_id: int):
     urlabuse_query = Query()
     queue = Redis(unix_socket_path=get_socket_path('cache'), db=0,
                   decode_responses=True)
+    print(f'Start Worker {process_id}')
     while True:
         jobid = queue.spop('to_process')
         if not jobid:

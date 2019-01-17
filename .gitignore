@@ -21,3 +21,6 @@ dist
 *egg-info
 
 *.rdb
+
+.env
+website/secret_key

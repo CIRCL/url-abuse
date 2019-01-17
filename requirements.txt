@@ -1,9 +1,18 @@
-redis>=3
-pypssl
-pypdns
-pyeupi
-dnspython
-beautifulsoup4
-
-git+https://github.com/D4-project/IPASN-History.git/#egg=pyipasnhistory&subdirectory=client
-git+https://github.com/D4-project/BGP-Ranking.git/#egg=pybgpranking&subdirectory=client
+-i https://pypi.org/simple
+beautifulsoup4==4.7.1
+certifi==2018.11.29
+chardet==3.0.4
+dnspython==1.16.0
+git+https://github.com/D4-project/BGP-Ranking.git/@5e4264a411b59f6a612c4bfdde307b1d8a61ead8#egg=pybgpranking&subdirectory=client
+git+https://github.com/D4-project/IPASN-History.git/@54857344c412a903df2abe67a8855f2fcaeef4a8#egg=pyipasnhistory&subdirectory=client
+idna==2.8
+pyeupi==1.0
+pypdns==1.3
+pypssl==2.1
+python-dateutil==2.7.5
+redis==3.0.1
+requests-cache==0.4.13
+requests==2.21.0
+six==1.12.0
+soupsieve==1.7.1
+urllib3==1.24.1
