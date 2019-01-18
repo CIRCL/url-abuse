@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4e0f863e88d1c7416abfa49ec8f74d6c51c2d605ca4a504ab7c87af0954c3d10"
+            "sha256": "a961b1d43bfe9f922623a78fc5f54f3b76247459f548fc18c651ad57e972e872"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -217,7 +217,7 @@
         },
         "pybgpranking": {
             "git": "https://github.com/D4-project/BGP-Ranking.git/",
-            "ref": "5e4264a411b59f6a612c4bfdde307b1d8a61ead8",
+            "ref": "2f7c28631262adcd16f90d88a87b59e63e5e0f36",
             "subdirectory": "client"
         },
         "pyeupi": {
@@ -234,7 +234,7 @@
         },
         "pyipasnhistory": {
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "54857344c412a903df2abe67a8855f2fcaeef4a8",
+            "ref": "d8d94e1e171e42ab075d8b97a3fd4451bd6f7445",
             "subdirectory": "client"
         },
         "pypdns": {
@@ -260,7 +260,7 @@
         },
         "pyurlabuse": {
             "editable": true,
-            "path": "."
+            "path": "./client"
         },
         "redis": {
             "hashes": [

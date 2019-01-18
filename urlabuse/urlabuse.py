@@ -542,7 +542,7 @@ class Query():
                         to_return += '\t{} out of {} positive detections in VT - {}\n'.format(
                             info['vt'][2], info['vt'][3], info['vt'][1])
                     else:
-                        to_return = '\t{} - {}\n'.format(info['vt'][0], info['vt'][1])
+                        to_return += '\t{} - {}\n'.format(info['vt'][0], info['vt'][1])
                 if 'gsb' in info:
                     to_return += '\tKnown as malicious on Google Safe Browsing: {}\n'.format(info['gsb'])
                 if 'phishtank' in info:
