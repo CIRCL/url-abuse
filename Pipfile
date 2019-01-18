@@ -12,15 +12,15 @@ pypdns = "*"
 pyeupi = "*"
 dnspython = "*"
 beautifulsoup4 = "*"
-pyipasnhistory = {git = "https://github.com/D4-project/IPASN-History.git/",subdirectory = "client"}
-pybgpranking = {git = "https://github.com/D4-project/BGP-Ranking.git/",subdirectory = "client"}
+pyipasnhistory = {editable = true,git = "https://github.com/D4-project/IPASN-History.git/",subdirectory = "client"}
+pybgpranking = {editable = true,git = "https://github.com/D4-project/BGP-Ranking.git/",subdirectory = "client"}
 flask = "*"
 flask-bootstrap = "*"
 flask-mail = "*"
 flask-wtf = "*"
 gunicorn = {extras = ["gevent"],version = "*"}
 pyurlabuse = {editable = true,path = "./client"}
-pyfaup = {git = "https://github.com/stricaud/faup.git/",subdirectory = "src/lib/bindings/python/"}
+pyfaup = {editable = true,git = "https://github.com/stricaud/faup.git/",subdirectory = "src/lib/bindings/python/"}
 
 [requires]
 python_version = "3.6"

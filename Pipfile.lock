@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a961b1d43bfe9f922623a78fc5f54f3b76247459f548fc18c651ad57e972e872"
+            "sha256": "21547085a908ef46ba32fe38cb88c8236645e1b778cbbeeb5d13c28e9055d858"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -216,8 +216,9 @@
             "version": "==1.1.0"
         },
         "pybgpranking": {
+            "editable": true,
             "git": "https://github.com/D4-project/BGP-Ranking.git/",
-            "ref": "2f7c28631262adcd16f90d88a87b59e63e5e0f36",
+            "ref": "7a39941c235067127c98d8a3cdd2785882e1cbb1",
             "subdirectory": "client"
         },
         "pyeupi": {
@@ -228,13 +229,15 @@
             "version": "==1.0"
         },
         "pyfaup": {
+            "editable": true,
             "git": "https://github.com/stricaud/faup.git/",
             "ref": "de31b6965fc4149c2095c7b721f456e428404736",
             "subdirectory": "src/lib/bindings/python/"
         },
         "pyipasnhistory": {
+            "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "d8d94e1e171e42ab075d8b97a3fd4451bd6f7445",
+            "ref": "2fb329beedb610788045482f36ddff0798398a27",
             "subdirectory": "client"
         },
         "pypdns": {
@@ -293,10 +296,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:009d8865916766f7f452880d08ff94ed4c5445011a3deaac67543b82bdb0b9ee",
-                "sha256:97599c45a1ddfe9ab0a0cba889b7f214b3e310b703f176a0610c0b54e207cc04"
+                "sha256:10687fc53eeb3518e01a0ac84d3d711da623d3298a3039459d3f649927c4a270",
+                "sha256:b23a0d7da0247200fe83c67c34de9d7599ad404106367313d8e65e04174d0b4b"
             ],
-            "version": "==1.7.1"
+            "version": "==1.7.2"
         },
         "urllib3": {
             "hashes": [
