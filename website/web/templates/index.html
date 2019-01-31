@@ -42,6 +42,7 @@
       <center>
           <h1>Report</h1>
           <h3>{{ query_url }}</h3>
+          <h3><a href="{{ lookyloo_url }}" target="_blank">See on Lookyloo</a></h3>
           <div class="alert alert-danger ng-hide" role="alert" ng-show="error">
               {{ error }}
           </div>
@@ -54,7 +55,6 @@
       <div ng-show="urls">
         <br/>
         <center><a href ng-click="submit_email()">Send report to CIRCL</a></center>
-        <!-- <center><a href="submit/{{ query_url }}">Send report to CIRCL</a></center> -->
         <br/>
       </div>
       <div ng-repeat="url in urls">

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "21547085a908ef46ba32fe38cb88c8236645e1b778cbbeeb5d13c28e9055d858"
+            "sha256": "33ab0963bdc6c913e8d3ef25f35a88d726ef5a6fb882606e6cd5c0aa9f897415"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -218,7 +218,7 @@
         "pybgpranking": {
             "editable": true,
             "git": "https://github.com/D4-project/BGP-Ranking.git/",
-            "ref": "7a39941c235067127c98d8a3cdd2785882e1cbb1",
+            "ref": "7e698f87366e6f99b4d0d11852737db28e3ddc62",
             "subdirectory": "client"
         },
         "pyeupi": {
@@ -237,7 +237,13 @@
         "pyipasnhistory": {
             "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "2fb329beedb610788045482f36ddff0798398a27",
+            "ref": "e846cd36fe1ed6b22f60890bba89f84e61b62e59",
+            "subdirectory": "client"
+        },
+        "pylookyloo": {
+            "editable": true,
+            "git": "https://github.com/CIRCL/lookyloo.git/",
+            "ref": "608d8816a8ebc1a7fb379356344ee3167243eeb4",
             "subdirectory": "client"
         },
         "pypdns": {
@@ -267,11 +273,11 @@
         },
         "redis": {
             "hashes": [
-                "sha256:2100750629beff143b6a200a2ea8e719fcf26420adabb81402895e144c5083cf",
-                "sha256:8e0bdd2de02e829b6225b25646f9fb9daffea99a252610d040409a6738541f0a"
+                "sha256:74c892041cba46078ae1ef845241548baa3bd3634f9a6f0f952f006eb1619c71",
+                "sha256:7ba8612bbfd966dea8c62322543fed0095da2834dbd5a7c124afbc617a156aa7"
             ],
             "index": "pypi",
-            "version": "==3.0.1"
+            "version": "==3.1.0"
         },
         "requests": {
             "hashes": [
@@ -296,10 +302,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:10687fc53eeb3518e01a0ac84d3d711da623d3298a3039459d3f649927c4a270",
-                "sha256:b23a0d7da0247200fe83c67c34de9d7599ad404106367313d8e65e04174d0b4b"
+                "sha256:466910df7561796a60748826781ebe9a888f7a1668a636ae86783f44d10aae73",
+                "sha256:87db12ae79194f0ff9808d2b1641c4f031ae39ffa3cab6b907ea7c1e5e5ed445"
             ],
-            "version": "==1.7.2"
+            "version": "==1.7.3"
         },
         "urllib3": {
             "hashes": [

@@ -21,7 +21,7 @@ import logging
 from pypdns import PyPDNS
 from pyipasnhistory import IPASNHistory
 from pybgpranking import BGPRanking
-
+from pylookyloo import Lookyloo
 
 from pypssl import PyPSSL
 from pyeupi import PyEUPI
@@ -471,6 +471,17 @@ class Query():
         self._cache_set(ip, to_return, 'bgpranking')
         return to_return
 
+    def lookyloo(self, url):
+        cached = self._cache_get(url, 'lookyloo')
+        if cached is not None:
+            return cached
+        lookyloo = Lookyloo()
+        lookyloo_perma_url = lookyloo.enqueue(url)
+        if lookyloo_perma_url:
+            self._cache_set(url, lookyloo_perma_url, 'lookyloo')
+            return lookyloo_perma_url
+        return None
+
     def _deserialize_cached(self, entry):
         to_return = {}
         redirects = []
@@ -537,6 +548,8 @@ class Query():
                 to_return += '\n{}\n'.format(url)
                 if 'whois' in info:
                     all_mails.update(info['whois'])
+                if 'lookyloo' in info:
+                    to_return += '\tLookyloo permanent URL: {}\n'.format(info['lookyloo'])
                 if 'vt' in info and len(info['vt']) == 4:
                     if info['vt'][2] is not None:
                         to_return += '\t{} out of {} positive detections in VT - {}\n'.format(

@@ -189,6 +189,12 @@ def run_query():
     return enqueue('is_valid_url', {'url': url})
 
 
+@app.route('/lookyloo', methods=['POST'])
+def lookyloo():
+    data = request.get_json(force=True)
+    return enqueue('lookyloo', {'url': data["url"]})
+
+
 @app.route('/urls', methods=['POST'])
 def urls():
     data = request.get_json(force=True)

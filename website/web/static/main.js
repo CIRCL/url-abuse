@@ -78,6 +78,11 @@
 
       var userInput = $scope.input_url;
 
+      var lookyloo = function(jobID) {
+        $scope.poller(jobID, function(data){
+            $scope.lookyloo_url = data;
+        });
+      };
 
       var check_validity = function(jobID) {
         $scope.poller(jobID, function(data){
@@ -91,6 +96,7 @@
       };
 
       $scope.query('start', {"url": userInput}, check_validity);
+      $scope.query('lookyloo', {"url": userInput}, lookyloo);
     };
 
      $scope.submit_email = function() {
