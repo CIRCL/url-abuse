@@ -44,7 +44,7 @@ before_script:
 script:
     - pipenv run start.py
     - sleep 10
-    - pipenv run start_website.py
+    - pipenv run start_website.py &
     - sleep 10
     - curl http://0.0.0.0:5200/
     - sleep 20
