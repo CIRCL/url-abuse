@@ -19,6 +19,7 @@ flask-bootstrap = "*"
 flask-mail = "*"
 flask-wtf = "*"
 gunicorn = {extras = ["gevent"],version = "*"}
+url-abuse = {editable = true,path = "."}
 pyurlabuse = {editable = true,path = "./client"}
 pyfaup = {editable = true,git = "https://github.com/stricaud/faup.git/",subdirectory = "src/lib/bindings/python/"}
 pylookyloo = {editable = true,git = "https://github.com/CIRCL/lookyloo.git/",subdirectory = "client"}

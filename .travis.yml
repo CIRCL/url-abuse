@@ -35,15 +35,16 @@ install:
     # Get back in the project directory
     - popd
     # Other Python deps
-    - pipenv install -d
+    - pipenv install
     - echo URLABUSE_HOME="'`pwd`'" > .env
 
 before_script:
     - cp website/config/config.ini.sample website/config/config.ini
 
 script:
-    - pipenv run start.py &
-    - sleep 5
-    - pipenv run start_website.py &
-    - curl http://0.0.0.0:5100/
+    - pipenv run start.py
+    - sleep 10
+    - pipenv run start_website.py
+    - sleep 10
+    - curl http://0.0.0.0:5200/
     - sleep 20
