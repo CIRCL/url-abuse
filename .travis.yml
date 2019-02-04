@@ -13,6 +13,7 @@ addons:
 
 install:
     # Faup
+    - git clone https://github.com/stricaud/faup.git
     - pushd faup/build
     - cmake .. && make
     - sudo make install
