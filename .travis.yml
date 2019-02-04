@@ -1,17 +1,16 @@
 language: python
 
 python:
-    - "2.7"
+    - "3.6"
+    - "3.6-dev"
+    - "3.7-dev"
 
 sudo: required
-dist: trusty
-
-addons:
-    apt:
-        packages:
-            - parallel
+dist: xenial
 
 install:
+    - pip install pipenv
+    - pushd ..
     # Faup
     - git clone https://github.com/stricaud/faup.git
     - pushd faup/build
@@ -19,38 +18,32 @@ install:
     - sudo make install
     - sudo ldconfig
     - popd
-    - pushd faup/src/lib/bindings/python
-    - python setup.py install
-    - popd
     # redis
+    - git clone https://github.com/antirez/redis.git
     - pushd redis
+    - git checkout 5.0
     - make
     - popd
     # Run uwhoisd
+    - git clone https://github.com/Rafiot/uwhoisd.git
     - pushd uwhoisd
-    - python setup.py install
-    - ../redis/src/redis-server extra/redis.conf --daemonize yes
+    - pipenv install
+    - echo UWHOISD_HOME="'`pwd`'" > .env
+    - pipenv run start.py
+    - popd
     - sleep 10
-    - uwhoisd extra/uwhoisd.ini &
+    # Get back in the project directory
     - popd
     # Other Python deps
-    - pip install -r requirements.txt
-    - pip install coveralls
-    - pip install codecov
+    - pipenv install -d
+    - echo URLABUSE_HOME="'`pwd`'" > .env
 
 before_script:
-    - cp config.ini.sample config.ini
-    - redis/src/redis-server --port 6334  --daemonize yes
-    - sleep 10
+    - cp website/config/config.ini.sample website/config/config.ini
 
 script:
-    - ./worker.py &
-    - ./runapp.py &
+    - pipenv run start.py &
     - sleep 5
+    - pipenv run start_website.py &
     - curl http://0.0.0.0:5100/
     - sleep 20
-
-after_success:
-    - coveralls
-    - codecov
-

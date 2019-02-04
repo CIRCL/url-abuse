@@ -63,7 +63,7 @@ pipenv install
 echo URLABUSE_HOME="'`pwd`'" > .env
 pipenv shell
 # Copy and review the configuration:
-cp config.ini.sample config.ini
+cp website/config/config.ini.sample website/config/config.ini
 # Starts all the backend
 start.py
 # Start the web interface
