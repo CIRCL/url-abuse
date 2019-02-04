@@ -79,6 +79,10 @@ class PyURLAbuse(object):
         query = {'query': q}
         return self._async('psslcircl', query)
 
+    def lookyloo(self, q):
+        query = {'url': q}
+        return self._async('lookyloo', query)
+
     def _update_cache(self, cached):
         for result in cached['result']:
             for url, items in result.items():
@@ -114,6 +118,7 @@ class PyURLAbuse(object):
             if has_cached_content:
                 cached['info'] = 'Used cached content'
                 return cached
+        self.lookyloo(q)
         job_id = self.urls(q)
         all_urls = None
         while True:

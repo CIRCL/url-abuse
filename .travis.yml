@@ -31,7 +31,6 @@ install:
     - echo UWHOISD_HOME="'`pwd`'" > .env
     - pipenv run start.py
     - popd
-    - sleep 10
     # Get back in the project directory
     - popd
     # Other Python deps
@@ -43,8 +42,10 @@ before_script:
 
 script:
     - pipenv run start.py
-    - sleep 10
+    - sleep 2
     - pipenv run start_website.py &
-    - sleep 10
+    - sleep 5
     - curl http://0.0.0.0:5200/
-    - sleep 20
+    - pushd client
+    - python tests/tests.py
+    - popd
