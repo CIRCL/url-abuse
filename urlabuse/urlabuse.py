@@ -81,14 +81,18 @@ class Query():
             day = date.today().isoformat()
         else:
             day = day.isoformat()
-        return self.cache.sismember(f'{day}_mails', url)
+        self.fex.decode(url)
+        host = self.fex.get_host()
+        return self.cache.sismember(f'{day}_mails', host)
 
     def set_mail_sent(self, url, day=None):
         if day is None:
             day = date.today().isoformat()
         else:
             day = day.isoformat()
-        return self.cache.sadd(f'{day}_mails', url)
+        self.fex.decode(url)
+        host = self.fex.get_host()
+        return self.cache.sadd(f'{day}_mails', host)
 
     def is_valid_url(self, url):
         cached = self._cache_get(url, 'valid')
