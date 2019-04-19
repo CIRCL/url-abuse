@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d700a13cfdb71e35a1b3d04a767ed55fafd1f50bb57822c3df816aff41ee192b"
+            "sha256": "f91cc3d3b8655ef167ac93c215c096391b3dc2c6e9c65ff59db97e7f15e5294f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -180,6 +180,7 @@
                 "sha256:065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013",
                 "sha256:14dd6caf1527abb21f08f86c784eac40853ba93edb79552aa1e4b8aef1b61c7b"
             ],
+            "index": "pypi",
             "version": "==2.10.1"
         },
         "markupsafe": {
@@ -218,7 +219,7 @@
         "pybgpranking": {
             "editable": true,
             "git": "https://github.com/D4-project/BGP-Ranking.git/",
-            "ref": "28013297efb039d2ebbce96ee2d89493f6ae56b0",
+            "ref": "4e0741056bcc0077de1120b8724a31330b26033e",
             "subdirectory": "client"
         },
         "pyeupi": {
@@ -237,13 +238,13 @@
         "pyipasnhistory": {
             "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "a87c1293a02be638d50b75d98b7ecc5f91e16a4f",
+            "ref": "c0c2bbf8d70811982dad065ea463a7e01593a38d",
             "subdirectory": "client"
         },
         "pylookyloo": {
             "editable": true,
             "git": "https://github.com/CIRCL/lookyloo.git/",
-            "ref": "e54141a2eeccaf41a301e1cd37c0bbd06344fca5",
+            "ref": "3aa22df7041f793acaf351b83dc3c48df5fec54f",
             "subdirectory": "client"
         },
         "pypdns": {
@@ -288,10 +289,10 @@
         },
         "requests-cache": {
             "hashes": [
-                "sha256:e9270030becc739b0a7f7f834234c73a878b2d794122bf76f40055a22419eb67",
-                "sha256:fe561ca119879bbcfb51f03a35e35b425e18f338248e59fd5cf2166c77f457a2"
+                "sha256:6822f788c5ee248995c4bfbd725de2002ad710182ba26a666e85b64981866060",
+                "sha256:73a7211870f7d67af5fd81cad2f67cfe1cd3eb4ee6a85155e07613968cc72dfc"
             ],
-            "version": "==0.4.13"
+            "version": "==0.5.0"
         },
         "six": {
             "hashes": [
@@ -313,10 +314,10 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39",
-                "sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"
+                "sha256:4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0",
+                "sha256:9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3"
             ],
-            "version": "==1.24.1"
+            "version": "==1.24.2"
         },
         "visitor": {
             "hashes": [
