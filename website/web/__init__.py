@@ -362,4 +362,5 @@ def send_mail():
     if not urlabuse_query.get_mail_sent(url):
         ip = _get_user_ip(request)
         send(url, ip)
-    return redirect(url_for('index'))
+    form = URLForm()
+    return render_template('index.html', form=form)
