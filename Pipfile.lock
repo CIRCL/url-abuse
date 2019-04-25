@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f91cc3d3b8655ef167ac93c215c096391b3dc2c6e9c65ff59db97e7f15e5294f"
+            "sha256": "9eef9aa4c8ebd3234c33b7d2cf2764ba65ea25c4cd951e0ab960a8dea5810fe9"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.6"
+            "python_version": "3"
         },
         "sources": [
             {
@@ -244,7 +244,7 @@
         "pylookyloo": {
             "editable": true,
             "git": "https://github.com/CIRCL/lookyloo.git/",
-            "ref": "3aa22df7041f793acaf351b83dc3c48df5fec54f",
+            "ref": "d32395405a0cc266ba9ea7df09875fedfca768bd",
             "subdirectory": "client"
         },
         "pypdns": {

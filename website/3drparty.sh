@@ -5,7 +5,7 @@ set -x
 
 DEST_DIR="web/static/"
 
-ANGULAR='1.7.5'
+ANGULAR='1.7.8'
 ANGULAR_BOOTSTRAP='2.5.0'
 
 wget https://ajax.googleapis.com/ajax/libs/angularjs/${ANGULAR}/angular.min.js -O ${DEST_DIR}/angular.min.js
