@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9eef9aa4c8ebd3234c33b7d2cf2764ba65ea25c4cd951e0ab960a8dea5810fe9"
+            "sha256": "a90d2e1e5b904d6df6258ff95c683a30ba3d58e4fcd34666585cb1b39ef87ae4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -219,7 +219,7 @@
         "pybgpranking": {
             "editable": true,
             "git": "https://github.com/D4-project/BGP-Ranking.git/",
-            "ref": "4d6af4d7630014ac7a67dbee7818376bd0812182",
+            "ref": "b367e1852cafabcb35a4159f520649bd35c4686b",
             "subdirectory": "client"
         },
         "pyeupi": {
@@ -331,6 +331,7 @@
                 "sha256:87ae4e5b5366da2347eb3116c0e6c681a0e939a33b2805e2c0cbd282664932c4",
                 "sha256:a13b74dd3c45f758d4ebdb224be8f1ab8ef58b3c0ffc1783a8c7d9f4f50227e6"
             ],
+            "index": "pypi",
             "version": "==0.15.5"
         },
         "wtforms": {
