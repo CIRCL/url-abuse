@@ -1,21 +1,21 @@
 -i https://pypi.org/simple
 -e .
 -e ./client
--e git+https://github.com/CIRCL/lookyloo.git/@3aa22df7041f793acaf351b83dc3c48df5fec54f#egg=pylookyloo&subdirectory=client
--e git+https://github.com/D4-project/BGP-Ranking.git/@4e0741056bcc0077de1120b8724a31330b26033e#egg=pybgpranking&subdirectory=client
--e git+https://github.com/D4-project/IPASN-History.git/@c0c2bbf8d70811982dad065ea463a7e01593a38d#egg=pyipasnhistory&subdirectory=client
--e git+https://github.com/stricaud/faup.git/@88dbbe2378552c9753b4f1e938663484909a4940#egg=pyfaup&subdirectory=src/lib/bindings/python/
-beautifulsoup4==4.7.1
+-e git+https://github.com/CIRCL/lookyloo.git/@934324ed09fede42e0fed43c3c0eab80d6436bb2#egg=pylookyloo&subdirectory=client
+-e git+https://github.com/D4-project/BGP-Ranking.git/@b367e1852cafabcb35a4159f520649bd35c4686b#egg=pybgpranking&subdirectory=client
+-e git+https://github.com/D4-project/IPASN-History.git/@283539cfbbde4bb54497726634407025f7d685c2#egg=pyipasnhistory&subdirectory=client
+-e git+https://github.com/stricaud/faup.git/@b65a4d816b008d715f4394cf2ccac474c1710350#egg=pyfaup&subdirectory=src/lib/bindings/python/
+beautifulsoup4==4.8.0
 blinker==1.4
-certifi==2019.3.9
+certifi==2019.6.16
 chardet==3.0.4
 click==7.0
 dnspython==1.16.0
-dominate==2.3.5
+dominate==2.4.0
 flask-bootstrap==3.3.7.1
 flask-mail==0.9.1
 flask-wtf==0.14.2
-flask==1.0.2
+flask==1.1.1
 gevent==1.4.0
 greenlet==0.4.15 ; platform_python_implementation == 'CPython'
 gunicorn[gevent]==19.9.0
@@ -24,15 +24,15 @@ itsdangerous==1.1.0
 jinja2==2.10.1
 markupsafe==1.1.1
 pyeupi==1.0
-pypdns==1.3
+pypdns==1.4.1
 pypssl==2.1
 python-dateutil==2.8.0
-redis==3.2.1
-requests-cache==0.5.0
-requests==2.21.0
+redis==3.3.8
+requests-cache==0.5.2
+requests==2.22.0
 six==1.12.0
-soupsieve==1.9.1
-urllib3==1.24.2
+soupsieve==1.9.3
+urllib3==1.25.3
 visitor==0.1.3
-werkzeug==0.15.2
+werkzeug==0.15.5
 wtforms==2.2.1
