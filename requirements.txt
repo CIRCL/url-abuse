@@ -7,7 +7,7 @@
 -e git+https://github.com/stricaud/faup.git/@b65a4d816b008d715f4394cf2ccac474c1710350#egg=pyfaup&subdirectory=src/lib/bindings/python/
 beautifulsoup4==4.8.0
 blinker==1.4
-certifi==2019.6.16
+certifi==2022.12.7
 chardet==3.0.4
 click==7.0
 dnspython==1.16.0
