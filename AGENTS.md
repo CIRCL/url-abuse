@@ -70,6 +70,7 @@ urlabuse/analysis.py Analysis job: chain, URL and IP stages, verdict
                      (doc/architecture/jobs.md)
 urlabuse/legacy.py   API v1 checks on the providers, get_cache + digest (doc/api/v1.md)
 urlabuse/report.py   Reports to CIRCL by e-mail (doc/api/v2.md)
+urlabuse/queries.py  v2 provider queries (one provider, one value) and cached results
 website/web/         Flask app (doc/web.md): __init__.py (pages, errors, flask-restx
                      Api), genericapi.py (API v2 at /api/v2), legacy.py (API v1
                      routes), helpers.py (shared objects), credits_data.py

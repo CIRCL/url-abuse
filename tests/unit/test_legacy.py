@@ -144,3 +144,39 @@ def test_v1_routes(client: FlaskClient, legacy: LegacyJobs) -> None:
     assert client.post('/api/v2/report', json={'url': 'http://a.test'}).status_code == 503
     r = client.get('/urlreport?url=http://a.test')
     assert r.status_code == 302 and r.headers['Location'].startswith('/?url=')
+
+
+def test_v2_equivalents(legacy: LegacyJobs, monkeypatch: pytest.MonkeyPatch) -> None:
+    from urlabuse.queries import Queries
+    from website.web import app, genericapi
+    queries = Queries(legacy.providers, legacy.cache, legacy.redis)
+    monkeypatch.setattr(genericapi, 'get_queries', lambda: queries)
+    monkeypatch.setattr(genericapi, 'get_legacy', lambda: legacy)
+    client = app.test_client()
+
+    # /start -> /api/v2/validate
+    assert client.post('/api/v2/validate', json={'url': 'hxxp://a.test'}).get_json() == \
+        {'valid': True, 'url': 'http://a.test', 'reason': None}
+    assert client.post('/api/v2/validate', json={'url': 'ftp://a.test'}).get_json()['valid'] is False
+
+    # /resolve, /lookyloo, /bgpranking... -> /api/v2/providers/<name>/query + /api/v2/queries/<uuid>
+    r = client.post('/api/v2/providers/dns/query', json={'value': 'http://a.test'})
+    assert r.status_code == 201
+    query = r.get_json()['uuid']
+    assert client.get(f'/api/v2/queries/{query}').get_json()['status'] == 'queued'
+    queries.run(queries.next_queued() or '')
+    for _ in range(2):    # can be read many times
+        done = client.get(f'/api/v2/queries/{query}').get_json()
+        assert done['status'] == 'done' and done['result']['data']['ipv4'] == ['8.8.8.8']
+    assert client.post('/api/v2/providers/nope/query', json={'value': 'x'}).status_code == 404
+    assert client.get('/api/v2/queries/nope').status_code == 404
+
+    # /get_cache -> /api/v2/cached
+    for name, value in (('lookyloo', 'http://a.test'), ('bgpranking', '8.8.8.8')):
+        queries.run(queries.create(name, value))
+    cached = client.post('/api/v2/cached', json={'url': 'http://a.test', 'digest': True}).get_json()
+    assert [h['url'] for h in cached['chain']] == ['http://a.test', 'https://end.test/']
+    first = cached['chain'][0]
+    assert first['results']['dns']['data']['ipv4'] == ['8.8.8.8']
+    assert first['hosts'][0]['results']['bgpranking']['data']['asn'] == '15169'
+    assert cached['digest']['asns'] == ['GOOGLE (15169)']

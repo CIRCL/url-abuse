@@ -12,6 +12,7 @@ from urlabuse.analysis import Analyses
 from urlabuse.cache import Cache
 from urlabuse.legacy import LegacyJobs
 from urlabuse.providers import Providers
+from urlabuse.queries import Queries
 from urlabuse.report import Reports
 
 
@@ -28,6 +29,11 @@ def get_analyses() -> Analyses:
 @lru_cache(1)
 def get_legacy() -> LegacyJobs:
     return LegacyJobs(get_providers(), Cache())
+
+
+@lru_cache(1)
+def get_queries() -> Queries:
+    return Queries(get_providers(), Cache())
 
 
 @lru_cache(1)

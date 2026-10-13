@@ -131,7 +131,9 @@ One commit per provider, each with unit tests (mocked HTTP) and a line in
 - [x] `GET /api/v2/analyse/<uuid>` → URLs, IPs, per-provider status/result,
       overall verdict, progress
 - [x] `GET /api/v2/providers` → providers, accepted types, configured or not
-- [ ] `POST /api/v2/providers/<name>` `{"value": …}` → one provider call
+- [x] `POST /api/v2/providers/<name>/query` `{"value": …}` → one provider call (job,
+      `GET /api/v2/queries/<uuid>`), `POST /api/v2/validate`, `POST /api/v2/cached`:
+      every v1 endpoint has a v2 equivalent
 - [x] `POST /api/v2/report` → report to CIRCL (once a day per host, `report` config)
 - [x] Input validation (http/https only, a host, 2048 characters max).
 - [ ] Rate limiting.
