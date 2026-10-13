@@ -46,14 +46,16 @@ The rebuild must answer them identically (checked by the step 1 suite).
 
 The safety net that lets us throw the old code away.
 
-- [ ] `tests/contract/`: pytest suite calling every v1 endpoint against a
+- [x] `tests/contract/`: pytest suite calling every v1 endpoint against a
       running instance (`URLABUSE_URL`), checking status codes and JSON shapes.
-- [ ] Fixtures recorded from the current instance for a few URLs (simple,
+- [x] Fixtures recorded from the current instance for a few URLs (simple,
       with redirects, IP literal, invalid URL, unconfigured source).
-- [ ] `client/pyurlabuse` tests (`run_query`, `get_cache`) in the same suite.
-- [ ] Doc: `doc/api/v1.md` (the table above + example payloads).
+- [ ] `client/pyurlabuse` tests (`run_query`, `get_cache`) in the same suite (moved to step 8, with the client update).
+- [x] Doc: `doc/api/v1.md` (the table above + example payloads).
 
-**Done when** the suite passes against the current code.
+**Done when** the suite passes against the current code. ✔ 21 tests
+(`tests/contract/test_v1.py`, doc `doc/api/v1.md`). Providers are checked
+configured or not, so no fixture files are needed.
 
 ## Step 2 — New skeleton
 
