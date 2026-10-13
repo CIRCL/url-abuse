@@ -54,20 +54,38 @@ there and re-export the PNG when the architecture changes).
 13. **No third-party front-end file committed, no CDN** (Lookyloo rule):
     fonts and libraries are fetched at install time by `tools/3rdparty.py`.
 
-## Repository layout (current code, before the rebuild)
+## Repository layout (rebuild in progress, see `doc/ROADMAP.md`)
 
 ```
-bin/                 start.py, run_backend.py (Redis), run_workers.py (RQ workers),
-                     start_website.py, stats.py
-urlabuse/urlabuse.py Current checks (redirects, resolve, PhishTank, VirusTotal, Google
-                     Safe Browsing, URLquery, passive DNS/SSL, BGP ranking, WHOIS,
-                     EUPI, Lookyloo, RT tickets) — to be replaced by provider calls
-website/web/         Flask app: one POST route per check returning a job id,
-                     GET /_result/<job_id>, POST /submit (report to CIRCL)
-  templates/         index.html (new interface), url-report.html, 404.html
+bin/                 Entry points (pyproject [project.scripts]): start, stop,
+                     shutdown, run_backend (Valkey), start_website (gunicorn)
+urlabuse/default/    Plumbing shared with Lookyloo: get_homedir() (+ .env),
+                     get_config() (config/*.json, fallback on the .sample),
+                     get_socket_path(), AbstractManager (daemon base class)
+urlabuse/            Core (providers, jobs, cache: roadmap steps 3-5)
+website/web/         Flask app: __init__.py (pages + flask-restx Api, Swagger
+                     at /doc/), genericapi.py (API v2 at /api/v2), proxied.py
+  templates/         index.html (new interface)
   static/            app.css, app.js, logos (new interface)
+config/              *.json.sample (committed) -> *.json (git-ignored):
+                     generic, providers (credentials), logging
+cache/               Valkey config + run_redis.sh
+tools/               validate_config_files.py
+tests/unit/          No instance needed (Flask test client)
+tests/contract/      v1 contract, against a running instance (doc/api/v1.md)
 client/pyurlabuse/   Python client of the URL Abuse API (must keep working)
-doc/architecture/    Architecture diagram (PNG + Pivograph JSON)
+doc/                 install.md, ROADMAP.md, api/, architecture/
+```
+
+The code before the rebuild is tagged `legacy-v1` (`git worktree add
+../url-abuse-legacy legacy-v1` to run it).
+
+## Running and checking
+
+```bash
+poetry install --with dev
+poetry run start / poetry run stop
+poetry run ruff check . && poetry run mypy . && poetry run python -m pytest tests/unit
 ```
 
 ## Web interface (redesign)

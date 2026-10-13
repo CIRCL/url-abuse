@@ -1,0 +1,26 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          pip install poetry
+          poetry install --with dev
+          echo "URLABUSE_HOME='$GITHUB_WORKSPACE'" > .env
+      - name: Lint
+        run: poetry run ruff check .
+      - name: Types
+        run: poetry run mypy .
+      - name: Unit tests
+        run: poetry run python -m pytest tests/unit

@@ -49,47 +49,17 @@ If you don't want to use the online version or run your own version of URL Abuse
 
 ## Install
 
-**IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
-
-**NOTE**: Yes, it requires python3.6+. No, it will never support anything older.
-
-## Install redis
+URL Abuse is being rebuilt (see [doc/ROADMAP.md](./doc/ROADMAP.md)). Install
+and run: [doc/install.md](./doc/install.md). In short:
 
 ```bash
-git clone https://github.com/antirez/redis.git
-cd redis
-git checkout 5.0
-make
-make test
-cd ..
-```
-
-# Install Faup
-
-```bash
-git clone git://github.com/stricaud/faup.git
-cd faup
-mkdir build
-cd build
-cmake .. && make
-sudo make install
-```
-
-## Install & run URL Abuse
-
-```bash
-git clone https://github.com/CIRCL/url-abuse.git
-cd url-abuse
-pipenv install
+poetry install
 echo URLABUSE_HOME="'`pwd`'" > .env
-pipenv shell
-# Copy and review the configuration:
-cp website/config/config.ini.sample website/config/config.ini
-# Starts all the backend
-start.py
-# Start the web interface
-start_website.py
+poetry run tools/validate_config_files.py
+poetry run start      # http://127.0.0.1:5200, API documentation at /doc/
 ```
+
+The previous version is tagged `legacy-v1`.
 
 ## Contributing
 

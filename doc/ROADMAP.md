@@ -59,17 +59,20 @@ configured or not, so no fixture files are needed.
 
 ## Step 2 — New skeleton
 
-- [ ] `pyproject.toml` (poetry), scripts `start`, `stop`, `update`, `run_backend`.
-- [ ] `urlabuse/default/`: `get_homedir()` (+ `.env`), `get_config()`,
+- [x] `pyproject.toml` (poetry), scripts `start`, `stop`, `shutdown`, `run_backend`, `start_website` (`update` comes with step 10).
+- [x] `urlabuse/default/`: `get_homedir()` (+ `.env`), `get_config()`,
       `get_socket_path()`, `AbstractManager`.
-- [ ] `cache/run_redis.sh`: valkey next to the repo, then redis, then `/usr/bin`.
-- [ ] `config/generic.json.sample`, `config/providers.json.sample`,
+- [x] `cache/run_redis.sh`: valkey next to the repo, then redis, then `/usr/bin`.
+- [x] `config/generic.json.sample`, `config/providers.json.sample`,
       `tools/validate_config_files.py`.
-- [ ] Empty Flask app with flask-restx, `/doc`, health route.
-- [ ] CI: mypy, ruff, unit tests.
-- [ ] Doc: `doc/install.md`, README "Install", `AGENTS.md` layout.
+- [x] Empty Flask app with flask-restx, `/doc`, health route.
+- [x] CI: mypy, ruff, unit tests.
+- [x] Doc: `doc/install.md`, README "Install", `AGENTS.md` layout.
 
-**Done when** `poetry install && poetry run start` starts Valkey + an empty website.
+**Done when** `poetry install && poetry run start` starts Valkey + an empty website. ✔
+The old code was removed in place (paths collide with the new layout) and
+tagged `legacy-v1`. Until step 7, the web page loads but its checks fail (no
+v1 endpoints); the Google Fonts link of `index.html` is handled in step 8.
 
 ## Step 3 — Provider interface and cache
 

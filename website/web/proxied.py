@@ -1,4 +1,11 @@
-class ReverseProxied(object):
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+from typing import Any
+
+
+class ReverseProxied:
     '''Wrap the application in this middleware and configure the
     front-end server to add these headers, to let you quietly bind
     this to a URL other than / and to an HTTP scheme that is
@@ -15,10 +22,10 @@ class ReverseProxied(object):
 
     :param app: the WSGI application
     '''
-    def __init__(self, app):
+    def __init__(self, app: Any) -> None:
         self.app = app
 
-    def __call__(self, environ, start_response):
+    def __call__(self, environ: dict[str, Any], start_response: Any) -> Any:
         script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
         if script_name:
             environ['SCRIPT_NAME'] = script_name

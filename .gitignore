@@ -1,26 +1,32 @@
+__pycache__/
 *.pyc
-*.log*
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
 
-# Configs
-redis.conf
-config.ini
+# Instance config (the *.json.sample files are committed)
+config/*.json
+.env
 
-# Key files
-*.key
+# Logs and databases
+logs/*.log*
+website/logs/*.log*
+cache/*.log
+*.rdb
+*.sock
 
-# Py libs
-sphinxapi.py
+# Legacy front-end libraries left on disk by the old install
+website/web/static/angular.min.js
+website/web/static/ui-bootstrap-tpls.min.js
 
-# JS libs
-angular.min.js
-ui-bootstrap-tpls.min.js
-
-# Packages stuff
+# Packages
 build
 dist
 *egg-info
 
-*.rdb
-
-.env
+# Legacy instance files (legacy-v1)
 website/secret_key
+website/config/config.ini
+website/*.log*
+*.key

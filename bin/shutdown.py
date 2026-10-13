@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import time
+
+from urlabuse.default import AbstractManager
+
+
+def main() -> None:
+    AbstractManager.force_shutdown()
+    time.sleep(5)
+    while True:
+        running = AbstractManager.is_running()
+        if not running:
+            break
+        print(running)
+        time.sleep(5)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-from subprocess import Popen
-from urlabuse.helpers import get_homedir
+from subprocess import Popen, run
 
-import redis
-import sys
+from urlabuse.default import get_homedir
 
-if redis.VERSION < (3, ):
-    print('redis-py >= 3 is required.')
-    sys.exit()
 
-if __name__ == '__main__':
+def main() -> None:
     # Just fail if the env isn't set.
     get_homedir()
-    p = Popen(['run_backend.py', '--start'])
-    p.wait()
-    Popen(['run_workers.py'])
+    print('Start backend (valkey)...')
+    p = run(['run_backend', '--start'])
+    try:
+        p.check_returncode()
+    except Exception:
+        print('Failed to start the backend, exiting.')
+        return
+    print('done.')
+    print('Start website...')
+    Popen(['start_website'])
+    print('done.')
+
+
+if __name__ == '__main__':
+    main()

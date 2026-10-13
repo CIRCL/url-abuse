@@ -1,0 +1,21 @@
+{
+  "loglevel": "INFO",
+  "website_listen_ip": "0.0.0.0",
+  "website_listen_port": 5200,
+  "public_domain": "urlabuse.example",
+  "report": {
+    "enabled": false,
+    "sender": "urlabuse@circl.lu",
+    "recipients": ["info@circl.lu"],
+    "smtp_host": "localhost",
+    "smtp_port": 25,
+    "autosend_threshold": 5
+  },
+  "_notes": {
+    "loglevel": "Python log level of the daemons: DEBUG, INFO, WARNING, ERROR",
+    "website_listen_ip": "IP the website (gunicorn) listens on",
+    "website_listen_port": "Port the website listens on",
+    "public_domain": "Domain where the instance is reachable, used in the reports",
+    "report": "Reports sent to CIRCL (POST /submit and /api/v2/report): enabled, sender, recipients, SMTP server, and how many submissions of the same URL in a day trigger an automatic report"
+  }
+}

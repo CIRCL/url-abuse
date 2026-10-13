@@ -1,58 +1,85 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-from urlabuse.helpers import get_homedir, check_running
-from subprocess import Popen
-import time
-from pathlib import Path
+from __future__ import annotations
 
 import argparse
+import os
+import sys
+import time
+from pathlib import Path
+from subprocess import Popen
+
+from redis import Redis
+from redis.exceptions import ConnectionError
+
+from urlabuse.default import get_homedir, get_socket_path
 
 
-def launch_cache(storage_directory: Path=None):
+def check_running(name: str) -> bool:
+    socket_path = get_socket_path(name)
+    if not os.path.exists(socket_path):
+        return False
+    try:
+        r = Redis(unix_socket_path=socket_path)
+        return True if r.ping() else False
+    except ConnectionError:
+        return False
+
+
+def launch_cache(storage_directory: Path | None=None) -> None:
     if not storage_directory:
         storage_directory = get_homedir()
     if not check_running('cache'):
-        Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
+        process = Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
+        try:
+            # Give time for the process to start (and potentailly fail)
+            process.wait(timeout=5)
+        except TimeoutError:
+            pass
+        process.poll()
+        if process.returncode == 1:
+            raise Exception('Failed to start Redis cache database.')
 
 
-def shutdown_cache(storage_directory: Path=None):
+def shutdown_cache(storage_directory: Path | None=None) -> None:
     if not storage_directory:
         storage_directory = get_homedir()
-    Popen(["./shutdown_redis.sh"], cwd=(storage_directory / 'cache'))
+    r = Redis(unix_socket_path=get_socket_path('cache'))
+    r.shutdown(save=True)
+    print('Redis cache database shutdown.')
 
 
-def launch_all():
+def launch_all() -> None:
     launch_cache()
 
 
-def check_all(stop=False):
-    backends = [['cache', False]]
+def check_all(stop: bool=False) -> None:
+    backends: dict[str, bool] = {'cache': False}
     while True:
-        for b in backends:
+        for db_name in backends.keys():
             try:
-                b[1] = check_running(b[0])
+                backends[db_name] = check_running(db_name)
             except Exception:
-                b[1] = False
+                backends[db_name] = False
         if stop:
-            if not any(b[1] for b in backends):
+            if not any(running for running in backends.values()):
                 break
         else:
-            if all(b[1] for b in backends):
+            if all(running for running in backends.values()):
                 break
-        for b in backends:
-            if not stop and not b[1]:
-                print(f"Waiting on {b[0]}")
-            if stop and b[1]:
-                print(f"Waiting on {b[0]}")
+        for db_name, running in backends.items():
+            if not stop and not running:
+                print(f"Waiting on {db_name} to start")
+            if stop and running:
+                print(f"Waiting on {db_name} to stop")
         time.sleep(1)
 
 
-def stop_all():
+def stop_all() -> None:
     shutdown_cache()
 
 
-if __name__ == '__main__':
+def main() -> None:
     parser = argparse.ArgumentParser(description='Manage backend DBs.')
     parser.add_argument("--start", action='store_true', default=False, help="Start all")
     parser.add_argument("--stop", action='store_true', default=False, help="Stop all")
@@ -60,8 +87,16 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.start:
-        launch_all()
+        try:
+            launch_all()
+        except Exception as e:
+            print(f"Failed to start some DBs: {e}")
+            sys.exit(1)
     if args.stop:
         stop_all()
     if not args.stop and args.status:
         check_all()
+
+
+if __name__ == '__main__':
+    main()
