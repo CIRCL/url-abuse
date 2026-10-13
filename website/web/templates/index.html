@@ -16,6 +16,7 @@
       <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
     </a>
     <nav class="site-nav">
+      <a class="site-link" href="{{ url_for('doc') }}">API</a>
       <a class="site-link" href="https://www.circl.lu/services/urlabuse/" target="_blank" rel="noopener">About this service</a>
     <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
       <picture>
@@ -74,6 +75,7 @@
 
   <footer class="site">
     <p>URL Abuse is a free service run by <a href="https://www.circl.lu/" target="_blank" rel="noopener">CIRCL</a>, the Computer Incident Response Center Luxembourg. Submitted URLs are logged and may be shared with CIRCL analysts.</p>
+    <p>Developers: everything this page does is available through the <a href="{{ url_for('doc') }}">URL Abuse API</a>.</p>
   </footer>
 
   <template id="tpl-hop">

@@ -14,12 +14,15 @@
     <a class="brand" href="{{ url_for('index') }}">
       <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
     </a>
+    <nav class="site-nav">
+      <a class="site-link" href="{{ url_for('doc') }}">API</a>
     <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
       <picture>
         <source srcset="{{ url_for('static', filename='logo-circl-dark.png') }}" media="(prefers-color-scheme: dark)">
         <img src="{{ url_for('static', filename='logo-circl.png') }}" alt="CIRCL, Computer Incident Response Center Luxembourg" width="210" height="87">
       </picture>
     </a>
+    </nav>
   </header>
   <main>
     <section class="lost">

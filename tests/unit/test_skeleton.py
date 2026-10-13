@@ -72,3 +72,8 @@ def test_404_json_when_asked(client: FlaskClient) -> None:
 def test_405_page(client: FlaskClient) -> None:
     r = client.delete('/', headers={'Accept': 'text/html'})
     assert r.status_code == 405 and b'Error 405' in r.data
+
+
+def test_api_link_in_pages(client: FlaskClient) -> None:
+    assert b'href="/doc/"' in client.get('/').data
+    assert b'href="/doc/"' in client.get('/nope', headers={'Accept': 'text/html'}).data
