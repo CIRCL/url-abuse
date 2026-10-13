@@ -58,13 +58,16 @@ there and re-export the PNG when the architecture changes).
 
 ```
 bin/                 Entry points (pyproject [project.scripts]): start, stop,
-                     shutdown, run_backend (Valkey), start_website (gunicorn)
+                     shutdown, run_backend (Valkey), start_website (gunicorn),
+                     analysis_worker (runs the queued analyses)
 urlabuse/default/    Plumbing shared with Lookyloo: get_homedir() (+ .env),
                      get_config() (config/*.json, fallback on the .sample),
                      get_socket_path(), AbstractManager (daemon base class)
-urlabuse/providers/  Provider interface + registry (doc/providers.md)
+urlabuse/providers/  Provider interface + registry + one module per provider
+                     (lookyloo, dns, bgpranking; doc/providers.md)
 urlabuse/cache.py    Provider answers cache in Valkey
-urlabuse/            Core (jobs: roadmap step 5)
+urlabuse/analysis.py Analysis job: chain, URL and IP stages, verdict
+                     (doc/architecture/jobs.md)
 website/web/         Flask app (doc/web.md): __init__.py (pages, errors, flask-restx
                      Api), genericapi.py (API v2 at /api/v2), credits_data.py
                      (/credits list), proxied.py
@@ -114,10 +117,9 @@ poetry run ruff check . && poetry run mypy . && poetry run python -m pytest test
   IBM Plex Mono only for data (URLs, IPs, hashes).
 - Security: every value from a checked site or a provider is attacker
   controlled — insert it with `textContent`, links only http/https.
-- Contract with the backend (to keep or to evolve together with the broker):
-  `POST <check>` with `{"url": …}` or `{"query": …}` returns a job id as text
-  (empty body = source not configured); `GET _result/<id>` answers 202 while
-  pending, 200 with the JSON result when done; `POST submit` sends the report.
+- The page uses API v2: `POST /api/v2/analyse`, then polls
+  `GET /api/v2/analyse/<uuid>` and updates the rows that changed (doc/api/v2.md).
+  Each provider has a reader in `static/app.js` (`readers`).
 
 ## Open points
 

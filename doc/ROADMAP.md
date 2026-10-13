@@ -10,6 +10,11 @@ incoming data stream.
 Each step is one or a few commits, ships with its docs, and is checked before
 the next one starts. Tick the boxes as the work lands.
 
+**Order changed (October 2026):** to get a working check quickly, steps 4–6
+were first done for the providers that need no API key, and the web page was
+moved to API v2 at the same time (part of step 8); step 7 (v1 routes) and the
+providers with keys come next.
+
 Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ---
@@ -100,35 +105,37 @@ v1 endpoints); the Google Fonts link of `index.html` is handled in step 8.
 One commit per provider, each with unit tests (mocked HTTP) and a line in
 `doc/providers.md`. No analysis logic of our own: use the provider's library.
 
-- [ ] `lookyloo` (PyLookyloo): capture, **redirect chain, IPs and hostnames
-      from the capture** — replaces the old crawler and most of the DNS work
-- [ ] `resolve` (dnspython), only for what Lookyloo does not give
+- [x] `lookyloo` (PyLookyloo): capture and **redirect chain** — replaces the old
+      crawler. Its IPs cover every resource of the page, so the IPs of each hop
+      come from `dns`
+- [x] `dns` (dnspython): addresses of each host of the chain
 - [ ] `phishtank`, `virustotal`, `googlesafebrowsing`, `eupi` (pyeupi)
 - [ ] `pdns_circl` (pypdns), `pssl_circl` (pypssl)
-- [ ] `ipasn` + `bgpranking` (pyipasnhistory, pybgpranking2)
+- [x] `bgpranking`: IP ASN History + BGP Ranking in one provider (pyipasnhistory, pybgpranking2)
 - [ ] `whois` / RDAP (abuse contacts, ignore/replace lists)
 - [ ] URL parsing: check if Faup is still needed (Lookyloo / `publicsuffix2`
       / `urllib` may be enough → no C library to build)
 
 ## Step 5 — Analysis jobs
 
-- [ ] `Analysis`: URL → `lookyloo` (chain, IPs) → URL providers per URL →
-      IP providers per IP; results stored per node, progress counted.
-- [ ] Worker daemon (`bin/analysis_worker.py`, `AbstractManager`), timeouts and
-      retries per provider, job TTL.
+- [x] `Analysis`: URL → `lookyloo` (chain) → URL providers per URL →
+      `dns` → IP providers per IP; results stored per node, progress counted.
+- [x] Worker daemon (`bin/analysis_worker.py`, `AbstractManager`), job TTL (7 days).
+- [ ] Retries per provider (timeouts are per provider config for now).
 - [ ] Report: digest text + JSON, sent to CIRCL at most once a day per URL.
-- [ ] Doc: `doc/architecture/jobs.md`.
+- [x] Doc: `doc/architecture/jobs.md`.
 
 ## Step 6 — API v2 (the broker)
 
-- [ ] `POST /api/v2/analyse` `{"url": …}` → `{"uuid": …}`
-- [ ] `GET /api/v2/analyse/<uuid>` → URLs, IPs, per-provider status/result,
+- [x] `POST /api/v2/analyse` `{"url": …}` → `{"uuid": …}`
+- [x] `GET /api/v2/analyse/<uuid>` → URLs, IPs, per-provider status/result,
       overall verdict, progress
-- [ ] `GET /api/v2/providers` → providers, accepted types, configured or not
+- [x] `GET /api/v2/providers` → providers, accepted types, configured or not
 - [ ] `POST /api/v2/providers/<name>` `{"value": …}` → one provider call
 - [ ] `POST /api/v2/report` → report to CIRCL
-- [ ] Input validation (http/https only, size limits), rate limiting.
-- [ ] Doc: Swagger + `doc/api/v2.md`.
+- [x] Input validation (http/https only, a host, 2048 characters max).
+- [ ] Rate limiting.
+- [x] Doc: Swagger (and `/api` with vitrine) + `doc/api/v2.md`.
 
 ## Step 7 — v1 compatibility layer
 
@@ -141,8 +148,9 @@ One commit per provider, each with unit tests (mocked HTTP) and a line in
 
 ## Step 8 — Clients and entry points
 
-- [ ] Web page (`static/app.js`): `POST /api/v2/analyse` + polling
+- [x] Web page (`static/app.js`): `POST /api/v2/analyse` + polling
       `GET /api/v2/analyse/<uuid>`; the segmented bar maps to the job's providers.
+      "Send report to CIRCL" is hidden until `POST /api/v2/report` exists.
 - [ ] `pyurlabuse`: new `analyse()` on v2, old methods kept.
 - [ ] Incoming data stream: list the current feeds/integrations (who sends
       what, format — to confirm with the owner), keep their input, route to `analyse`.
