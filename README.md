@@ -56,7 +56,8 @@ and run: [doc/install.md](./doc/install.md). In short:
 poetry install
 echo URLABUSE_HOME="'`pwd`'" > .env
 poetry run tools/validate_config_files.py
-poetry run start      # http://127.0.0.1:5200, API documentation at /doc/
+poetry run tools/3rdparty.py   # front-end libraries (needs Node >= 20)
+poetry run start      # http://127.0.0.1:5200, API reference at /api
 ```
 
 The previous version is tagged `legacy-v1`.

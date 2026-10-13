@@ -578,6 +578,34 @@ dd[data-state="bad"] .val { color: var(--bad); font-weight: 600; }
 .lost-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
 .lost-actions .btn-primary { display: inline-block; text-decoration: none; }
 
+/* API page: <vt-openapi> (vitrine) themed with our tokens */
+
+.api-intro { padding-top: clamp(2rem, 6vh, 3.5rem); margin-bottom: 2rem; }
+.api-intro p { color: var(--muted); font-size: 1.0625rem; max-width: 44rem; }
+.api-links { display: flex; gap: 1.5rem; font-family: var(--mono); font-size: 0.875rem; }
+
+vt-openapi.api-reference {
+  display: block;
+  --vt-bg: var(--paper);
+  --vt-surface: var(--surface);
+  --vt-surface-sunken: var(--paper);
+  --vt-surface-raised: var(--surface);
+  --vt-border: var(--line);
+  --vt-border-strong: var(--faint);
+  --vt-fg: var(--ink);
+  --vt-fg-muted: var(--muted);
+  --vt-accent: var(--action);
+  --vt-accent-fg: var(--action);
+  --vt-on-accent: var(--action-ink);
+  --vt-success: var(--ok);
+  --vt-warning: var(--warn);
+  --vt-danger: var(--bad);
+  --vt-info: var(--info);
+  --vt-font-ui: var(--sans);
+  --vt-font-body: var(--sans);
+  --vt-font-mono: var(--mono);
+}
+
 /* Small screens */
 
 @media (max-width: 36rem) {

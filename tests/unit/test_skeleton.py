@@ -75,5 +75,11 @@ def test_405_page(client: FlaskClient) -> None:
 
 
 def test_api_link_in_pages(client: FlaskClient) -> None:
-    assert b'href="/doc/"' in client.get('/').data
-    assert b'href="/doc/"' in client.get('/nope', headers={'Accept': 'text/html'}).data
+    assert b'href="/api"' in client.get('/').data
+    assert b'href="/api"' in client.get('/nope', headers={'Accept': 'text/html'}).data
+
+
+def test_api_page(client: FlaskClient) -> None:
+    r = client.get('/api')
+    assert r.status_code == 200
+    assert b'<vt-openapi' in r.data and b'src="/swagger.json"' in r.data and b'href="/doc/"' in r.data

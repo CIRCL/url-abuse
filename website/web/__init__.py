@@ -29,6 +29,11 @@ def index() -> str:
     return render_template('index.html')
 
 
+@app.route('/api', methods=['GET'])
+def api_page() -> str:
+    return render_template('api.html')
+
+
 # Error pages: JSON under /api/ (and for clients that only accept JSON), the
 # error page otherwise. Doc: doc/api/v2.md (errors)
 ERROR_MESSAGES = {

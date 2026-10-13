@@ -30,3 +30,4 @@ website/secret_key
 website/config/config.ini
 website/*.log*
 *.key
+website/web/static/vendor/

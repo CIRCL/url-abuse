@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API · CIRCL URL Abuse</title>
+  <meta name="description" content="Reference of the URL Abuse API.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/vitrine/vitrine.css') }}">
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
+    </a>
+    <nav class="site-nav">
+      <a class="site-link" href="{{ url_for('doc') }}">API</a>
+      <a class="site-link" href="https://www.circl.lu/services/urlabuse/" target="_blank" rel="noopener">About this service</a>
+    <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
+      <picture>
+        <source srcset="{{ url_for('static', filename='logo-circl-dark.png') }}" media="(prefers-color-scheme: dark)">
+        <img src="{{ url_for('static', filename='logo-circl.png') }}" alt="CIRCL, Computer Incident Response Center Luxembourg" width="210" height="87">
+      </picture>
+    </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="api-intro">
+      <h1>URL Abuse API</h1>
+      <p>Everything the web page does is available to your scripts: send a URL, get the answers of every source. Python client: <a href="https://github.com/CIRCL/url-abuse/tree/master/client">pyurlabuse</a>.</p>
+      <p class="api-links">
+        <a href="{{ url_for('specs') }}">swagger.json</a>
+        <a href="{{ url_for('doc') }}">Swagger UI</a>
+      </p>
+    </section>
+    <vt-openapi class="api-reference" variant="full" src="{{ url_for('specs') }}">
+      <p>Loading the API reference… If it does not appear, use the <a href="{{ url_for('doc') }}">Swagger UI</a>.</p>
+    </vt-openapi>
+  </main>
+
+  <script type="module" src="{{ url_for('static', filename='api.js') }}"></script>
+</body>
+</html>

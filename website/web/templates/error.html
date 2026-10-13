@@ -15,7 +15,7 @@
       <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
     </a>
     <nav class="site-nav">
-      <a class="site-link" href="{{ url_for('doc') }}">API</a>
+      <a class="site-link" href="{{ url_for('api_page') }}">API</a>
     <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
       <picture>
         <source srcset="{{ url_for('static', filename='logo-circl-dark.png') }}" media="(prefers-color-scheme: dark)">
@@ -31,7 +31,7 @@
       <p>{{ message }}</p>
       <div class="lost-actions">
         <a class="btn-primary" href="{{ url_for('index') }}">Check a URL</a>
-        <a class="site-link" href="{{ url_for('doc') }}">API documentation</a>
+        <a class="site-link" href="{{ url_for('api_page') }}">API documentation</a>
       </div>
     </section>
   </main>

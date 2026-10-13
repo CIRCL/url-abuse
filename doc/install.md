@@ -25,6 +25,19 @@ echo URLABUSE_HOME="'`pwd`'" > .env
 poetry run tools/validate_config_files.py   # creates config/*.json from the samples
 ```
 
+Front-end libraries are not in the repository (no CDN either): install them
+in `website/web/static/vendor/` with
+
+```bash
+poetry run tools/3rdparty.py
+```
+
+It needs Node >= 20 and network access, to build
+[vitrine](https://github.com/ecrou-exact/vitrine) at the pinned commit
+(`VITRINE_COMMIT` in the script). Without Node on the server, build vitrine
+elsewhere at the same commit (`npm ci && npm run build`) and install its
+`dist/` folder: `poetry run tools/3rdparty.py --vitrine-dist /path/to/vitrine/dist`.
+
 Review `config/generic.json` (port, reports to CIRCL) and fill the provider
 credentials in `config/providers.json` (doc: the `_notes` of each sample).
 
@@ -35,7 +48,7 @@ poetry run start   # Valkey + website on http://0.0.0.0:5200
 poetry run stop    # graceful stop
 ```
 
-- Web page: `/`, API documentation (Swagger): `/doc/`, health: `/api/v2/health`.
+- Web page: `/`, API reference: `/api` (Swagger UI: `/doc/`), health: `/api/v2/health`.
 - Logs: `logs/` (daemons), `website/logs/`, `cache/cache.log`.
 
 ## Checks

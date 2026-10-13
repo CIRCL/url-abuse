@@ -67,12 +67,14 @@ urlabuse/cache.py    Provider answers cache in Valkey
 urlabuse/            Core (jobs: roadmap step 5)
 website/web/         Flask app: __init__.py (pages + flask-restx Api, Swagger
                      at /doc/), genericapi.py (API v2 at /api/v2), proxied.py
-  templates/         index.html (new interface), error.html (404/405/500, doc/api/v2.md)
-  static/            app.css, app.js, logos (new interface)
+  templates/         index.html (new interface), api.html (API reference with
+                     vitrine <vt-openapi>), error.html (404/405/500, doc/api/v2.md)
+  static/            app.css, app.js, api.js, logos (new interface)
+    vendor/          git-ignored, installed by tools/3rdparty.py (vitrine)
 config/              *.json.sample (committed) -> *.json (git-ignored):
                      generic, providers (credentials), logging
 cache/               Valkey config + run_redis.sh
-tools/               validate_config_files.py
+tools/               validate_config_files.py, 3rdparty.py (front-end libraries)
 tests/unit/          No instance needed (Flask test client)
 tests/contract/      v1 contract, against a running instance (doc/api/v1.md)
 client/pyurlabuse/   Python client of the URL Abuse API (must keep working)
