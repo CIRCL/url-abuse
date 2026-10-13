@@ -16,6 +16,8 @@
   --alarm-ring: rgba(179, 32, 47, 0.18);
   --caution: #f3d58f;
   --caution-ink: #4a3406;
+  --clear: #1f7a55;
+  --clear-ink: #ffffff;
 
   --sans: "Schibsted Grotesk", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -44,6 +46,8 @@
     --alarm-ring: rgba(240, 100, 112, 0.22);
     --caution: #e0a84a;
     --caution-ink: #2a1c02;
+    --clear: #1d6b4a;
+    --clear-ink: #ffffff;
     color-scheme: dark;
   }
 }
@@ -330,10 +334,11 @@ body.has-report .lookup .btn-primary { padding: 0.625rem 1rem; }
 .verdict strong { display: block; font-size: 1.25rem; letter-spacing: -0.01em; }
 .verdict p { margin: 0.25rem 0 0; color: var(--muted); max-width: 40rem; }
 
-/* Dangerous and doubtful links get a full alarm block instead of a note. */
+/* Every reputation verdict gets a full block; "ok" means "no source flags it", never "safe". */
 
 .verdict[data-tone="bad"],
-.verdict[data-tone="warn"] {
+.verdict[data-tone="warn"],
+.verdict[data-tone="ok"] {
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
@@ -351,6 +356,10 @@ body.has-report .lookup .btn-primary { padding: 0.625rem 1rem; }
   background: var(--caution);
   color: var(--caution-ink);
 }
+.verdict[data-tone="ok"] {
+  background: var(--clear);
+  color: var(--clear-ink);
+}
 
 .verdict-icon {
   flex: none;
@@ -363,19 +372,24 @@ body.has-report .lookup .btn-primary { padding: 0.625rem 1rem; }
 .verdict[data-tone="warn"] .icon-body { fill: var(--caution-ink); }
 .verdict[data-tone="warn"] .icon-mark { stroke: var(--caution); stroke-width: 4.5; stroke-linecap: round; }
 .verdict[data-tone="warn"] .icon-dot { fill: var(--caution); }
+.verdict[data-tone="ok"] .icon-body { fill: var(--clear-ink); }
+.verdict[data-tone="ok"] .icon-mark { fill: none; stroke: var(--clear); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
 .icon-body { stroke-linejoin: round; }
 
 .verdict[data-tone="bad"] strong,
-.verdict[data-tone="warn"] strong {
+.verdict[data-tone="warn"] strong,
+.verdict[data-tone="ok"] strong {
   font-size: clamp(1.75rem, 5vw, 2.5rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
 .verdict[data-tone="bad"] p,
-.verdict[data-tone="warn"] p { color: inherit; opacity: 0.9; }
+.verdict[data-tone="warn"] p,
+.verdict[data-tone="ok"] p { color: inherit; opacity: 0.9; }
 .verdict[data-tone="bad"] .verdict-lead,
-.verdict[data-tone="warn"] .verdict-lead {
+.verdict[data-tone="warn"] .verdict-lead,
+.verdict[data-tone="ok"] .verdict-lead {
   margin-top: 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;

@@ -404,8 +404,10 @@
       title = 'No reputation source could check this link.';
       detail = 'This server has no API keys for PhishTank, VirusTotal, Google Safe Browsing or the EU phishing initiative. Routing and contact data are below.';
     } else {
+      var okSources = sources('ok');
       tone = 'ok';
-      title = 'No source flags this link.';
+      title = 'No source flags this link';
+      if (okSources.length) lead = 'Checked by ' + joinNames(okSources) + '.';
       detail = "That isn't proof it's safe: new phishing pages often go unlisted for hours. If it looks suspicious, send the report anyway.";
     }
 
@@ -416,6 +418,9 @@
     if (tone === 'bad' || tone === 'warn') {
       els.verdict.setAttribute('role', 'alert');
       els.verdict.appendChild(warningIcon());
+    } else if (tone === 'ok') {
+      els.verdict.removeAttribute('role');
+      els.verdict.appendChild(checkIcon());
     } else {
       els.verdict.removeAttribute('role');
     }
@@ -429,6 +434,22 @@
   function joinNames(names) {
     if (names.length === 1) return names[0];
     return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+  }
+
+  function checkIcon() {
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 48 48');
+    svg.setAttribute('class', 'verdict-icon');
+    svg.setAttribute('aria-hidden', 'true');
+    var disc = document.createElementNS(NS, 'circle');
+    disc.setAttribute('cx', '24'); disc.setAttribute('cy', '24'); disc.setAttribute('r', '21');
+    disc.setAttribute('class', 'icon-body');
+    var tick = document.createElementNS(NS, 'path');
+    tick.setAttribute('d', 'M14.5 24.5l6.5 6.5 12.5-13');
+    tick.setAttribute('class', 'icon-mark');
+    svg.appendChild(disc); svg.appendChild(tick);
+    return svg;
   }
 
   function warningIcon() {
