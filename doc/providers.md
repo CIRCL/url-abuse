@@ -63,6 +63,11 @@ Call it with `provider.query(value)`; `query()` does the rest:
 
 Then:
 
+- import its module in `urlabuse/providers/__init__.py` (registration);
+- a `label` (the row name on the web page) and `reputation = True` if it
+  gives a verdict;
+- a reader in `static/app.js` (`readers`) for its `data`;
+- a line in `website/web/credits_data.py` (Sources);
 - add its entry, with a line in `_notes`, to `config/providers.json.sample`;
 - unit tests with the HTTP calls mocked (`tests/unit/`);
 - a row in the table below.
@@ -87,6 +92,13 @@ of the `ProviderResult`, expiring after the provider's `cache_ttl`.
 
 ## Providers
 
-| Name | Kinds | Config | Status |
-|---|---|---|---|
-| — | | | ported in roadmap step 4 |
+| Name | Label | Kinds | Config | Answer (`data`) |
+|---|---|---|---|---|
+| `lookyloo` | Lookyloo capture | url | `url` of the instance, `timeout` (s), `listing` | `capture_uuid`, `permalink`, `redirects` (the chain); `links` = permalink |
+| `dns` | Addresses | url, hostname | `timeout` (s) | `host`, `ipv4`, `ipv6` |
+| `bgpranking` | Network | ip | `url` (BGP Ranking), `ipasn_url` (IP ASN History) | `asn`, `prefix`, `asn_description`, `rank`, `position`, `total_known_asns`; `links` = AS page |
+
+Still to port from the old version (roadmap step 4): PhishTank, VirusTotal,
+Google Safe Browsing, EUPI, CIRCL passive DNS and passive SSL, WHOIS abuse
+contacts. The web page has one reader per provider (`readers` in
+`static/app.js`) that turns its `data` into a line; add one with the provider.

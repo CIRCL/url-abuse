@@ -54,6 +54,12 @@ CREDITS: dict[str, list[Credit]] = {
         Credit('IBM Plex Mono', 'https://github.com/IBM/plex', 'OFL-1.1', 'Font of the data: URLs, IPs, hashes'),
     ],
     'Sources': [
-        Credit('Lookyloo', 'https://www.lookyloo.eu/', 'BSD-3-Clause', 'Captures of the URLs (redirects, hosts, IPs), through PyLookyloo'),
+        Credit('Lookyloo', 'https://www.lookyloo.eu/', 'BSD-3-Clause', 'Capture of the URL in a real browser: redirect chain'),
+        Credit('PyLookyloo', 'https://github.com/Lookyloo/PyLookyloo', 'GPL-2.0-or-later', 'Lookyloo client', 'pylookyloo'),
+        Credit('BGP Ranking', 'https://bgpranking-ng.circl.lu/', 'AGPL-3.0', 'Rank of the network (AS) of an IP, by CIRCL'),
+        Credit('IP ASN History', 'https://ipasnhistory.circl.lu/', 'AGPL-3.0', 'ASN and prefix of an IP, by CIRCL'),
+        Credit('pybgpranking2', 'https://github.com/D4-project/pybgpranking', 'BSD-3-Clause', 'BGP Ranking client', 'pybgpranking2'),
+        Credit('pyipasnhistory', 'https://github.com/D4-project/pyipasnhistory', 'AGPL-3.0', 'IP ASN History client', 'pyipasnhistory'),
+        Credit('dnspython', 'https://www.dnspython.org/', 'ISC', 'DNS resolution of the hosts', 'dnspython'),
     ],
 }

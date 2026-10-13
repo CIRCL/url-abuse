@@ -49,5 +49,8 @@ class Providers:
         return [p for p in self.enabled() if kind in p.accepts]
 
 
+# Providers register themselves when imported (one module per provider)
+from . import bgpranking, dns, lookyloo  # noqa: E402,F401
+
 __all__ = ['Kind', 'PROVIDER_CLASSES', 'Provider', 'ProviderResult', 'Providers',
            'Status', 'Verdict', 'detect_kind', 'register']

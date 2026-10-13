@@ -1,39 +1,98 @@
 {
-  "lookyloo": {"enabled": true, "url": "https://lookyloo.circl.lu/"},
-  "ipasn": {"enabled": true, "url": "https://ipasnhistory.circl.lu/"},
-  "bgpranking": {"enabled": true, "url": "https://bgpranking-ng.circl.lu/"},
-  "phishtank": {"enabled": false, "apikey": ""},
-  "virustotal": {"enabled": false, "apikey": ""},
-  "googlesafebrowsing": {"enabled": false, "apikey": ""},
-  "eupi": {"enabled": false, "url": "https://phishing-initiative.fr", "apikey": ""},
-  "pdns_circl": {"enabled": false, "url": "https://www.circl.lu/pdns/query", "username": "", "password": ""},
-  "pssl_circl": {"enabled": false, "url": "https://www.circl.lu/", "username": "", "password": ""},
+  "lookyloo": {
+    "enabled": true,
+    "url": "https://lookyloo.circl.lu/",
+    "timeout": 180,
+    "listing": false
+  },
+  "dns": {
+    "enabled": true,
+    "timeout": 5
+  },
+  "bgpranking": {
+    "enabled": true,
+    "url": "https://bgpranking-ng.circl.lu/",
+    "ipasn_url": "https://ipasnhistory.circl.lu/"
+  },
+  "phishtank": {
+    "enabled": false,
+    "apikey": ""
+  },
+  "virustotal": {
+    "enabled": false,
+    "apikey": ""
+  },
+  "googlesafebrowsing": {
+    "enabled": false,
+    "apikey": ""
+  },
+  "eupi": {
+    "enabled": false,
+    "url": "https://phishing-initiative.fr",
+    "apikey": ""
+  },
+  "pdns_circl": {
+    "enabled": false,
+    "url": "https://www.circl.lu/pdns/query",
+    "username": "",
+    "password": ""
+  },
+  "pssl_circl": {
+    "enabled": false,
+    "url": "https://www.circl.lu/",
+    "username": "",
+    "password": ""
+  },
   "whois": {
     "enabled": true,
     "server": "127.0.0.1",
     "port": 4243,
-    "ignore": ["ripe.net$", "arin.net$", "apnic.net$", "idnic.net$", "peering@", "dns.lu$", "domreg@", "registrar-email"],
+    "ignore": [
+      "ripe.net$",
+      "arin.net$",
+      "apnic.net$",
+      "idnic.net$",
+      "peering@",
+      "dns.lu$",
+      "domreg@",
+      "registrar-email"
+    ],
     "replace": {
-      "abuse@ispsystem.com": ["abuse@ispserver.com"],
-      "abuse@ispsystem.net": ["abuse@ispserver.com"],
-      "hostmaster@root.lu": ["abuse@as5577.net"],
-      "noc@as5577.net": ["abuse@as5577.net"],
-      "abuse@godaddy.com": ["abuse@godaddy.com", "phishing@godaddy.com", "malware@godaddy.com"],
-      "ipadmin@websitewelcome.com": ["security@hostgator.com", "ipadmin@websitewelcome.com"]
+      "abuse@ispsystem.com": [
+        "abuse@ispserver.com"
+      ],
+      "abuse@ispsystem.net": [
+        "abuse@ispserver.com"
+      ],
+      "hostmaster@root.lu": [
+        "abuse@as5577.net"
+      ],
+      "noc@as5577.net": [
+        "abuse@as5577.net"
+      ],
+      "abuse@godaddy.com": [
+        "abuse@godaddy.com",
+        "phishing@godaddy.com",
+        "malware@godaddy.com"
+      ],
+      "ipadmin@websitewelcome.com": [
+        "security@hostgator.com",
+        "ipadmin@websitewelcome.com"
+      ]
     },
     "fallback": "set.this@invalid.tld"
   },
   "_notes": {
     "*": "One entry per provider (doc/providers.md). A provider that is disabled or has no credentials answers 'not configured'. Copy this file to providers.json (git-ignored) and fill the keys.",
-    "lookyloo": "Lookyloo instance used for the captures (PyLookyloo); gives the redirect chain and the IPs",
-    "ipasn": "IP ASN History instance (ASN and prefix of an IP)",
-    "bgpranking": "BGP Ranking instance (rank of an ASN)",
+    "lookyloo": "Lookyloo instance used for the captures (PyLookyloo): redirect chain and permalink. timeout = seconds to wait for a capture; listing = show the captures on the public index of that instance",
+    "bgpranking": "Network of an IP: IP ASN History instance (ipasn_url) for the ASN and prefix, BGP Ranking instance (url) for the rank of the AS",
     "phishtank": "PhishTank API key",
     "virustotal": "VirusTotal API key",
     "googlesafebrowsing": "Google Safe Browsing API key",
     "eupi": "Phishing Initiative (EUPI) URL and API key",
     "pdns_circl": "CIRCL Passive DNS URL and credentials",
     "pssl_circl": "CIRCL Passive SSL URL and credentials",
-    "whois": "WHOIS server used to find abuse contacts; ignore = regexes of e-mails to drop, replace = e-mail -> e-mails to use instead, fallback = contact when none is found"
+    "whois": "WHOIS server used to find abuse contacts; ignore = regexes of e-mails to drop, replace = e-mail -> e-mails to use instead, fallback = contact when none is found",
+    "dns": "DNS resolution of the hosts (system resolver); timeout in seconds"
   }
 }

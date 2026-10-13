@@ -19,6 +19,7 @@ from ..cache import Cache
 
 class Status(str, Enum):
     ok = 'ok'
+    pending = 'pending'                 # scheduled in an analysis, no answer yet
     not_configured = 'not_configured'   # disabled, or credentials missing
     not_applicable = 'not_applicable'   # the provider does not take this kind of value
     error = 'error'
@@ -80,7 +81,9 @@ class Provider(ABC):
     query() handles configuration, kinds, cache and errors for them.'''
 
     name: ClassVar[str]
+    label: ClassVar[str] = ''                          # shown in the interface ('Network')
     description: ClassVar[str] = ''
+    reputation: ClassVar[bool] = False                 # gives a verdict on the value
     accepts: ClassVar[frozenset[Kind]]
     required_config: ClassVar[tuple[str, ...]] = ()   # config keys that must be non-empty
     cache_ttl: ClassVar[int] = 24 * 3600               # seconds, 0 = no cache
