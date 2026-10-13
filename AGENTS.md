@@ -66,8 +66,9 @@ doc/architecture/    Architecture diagram (PNG + Pivograph JSON)
 - Verdict: a red block when any source flags the URL (count distinct sources),
   an ochre block when in doubt, a green block of the same weight when no
   source flags it (worded "No source flags this link", with the sources that
-  checked it and a reminder that this is not proof); never claim a URL is
-  safe. A source without an API key is shown as "not set up", never as an error.
+  checked it and a reminder that this is not proof), and a slate block "We
+  can't tell if this link is dangerous" when no reputation source could check
+  it; never claim a URL is safe. A source without an API key is shown as "not set up", never as an error.
 - Light and dark themes from CSS tokens; Schibsted Grotesk for the UI,
   IBM Plex Mono only for data (URLs, IPs, hashes).
 - Security: every value from a checked site or a provider is attacker

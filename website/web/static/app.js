@@ -401,8 +401,10 @@
       detail = 'Read the details below before you open it. If it came by email or text message, send the report to CIRCL.';
     } else if (!run.reputationRan) {
       tone = 'neutral';
-      title = 'No reputation source could check this link.';
-      detail = 'This server has no API keys for PhishTank, VirusTotal, Google Safe Browsing or the EU phishing initiative. Routing and contact data are below.';
+      title = "We can't tell if this link is dangerous";
+      lead = 'No reputation source checked it.';
+      detail = 'This server has no API keys for PhishTank, VirusTotal, Google Safe Browsing or the EU phishing initiative. ' +
+               'Treat the link as unknown: if it came by email or text message, send the report to CIRCL. Routing and contact data are below.';
     } else {
       var okSources = sources('ok');
       tone = 'ok';
@@ -423,6 +425,7 @@
       els.verdict.appendChild(checkIcon());
     } else {
       els.verdict.removeAttribute('role');
+      els.verdict.appendChild(unknownIcon());
     }
     var text = el('div', { class: 'verdict-text' }, [el('strong', { text: title })]);
     if (lead) text.appendChild(el('p', { class: 'verdict-lead', text: lead }));
@@ -449,6 +452,25 @@
     tick.setAttribute('d', 'M14.5 24.5l6.5 6.5 12.5-13');
     tick.setAttribute('class', 'icon-mark');
     svg.appendChild(disc); svg.appendChild(tick);
+    return svg;
+  }
+
+  function unknownIcon() {
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 48 48');
+    svg.setAttribute('class', 'verdict-icon');
+    svg.setAttribute('aria-hidden', 'true');
+    var disc = document.createElementNS(NS, 'circle');
+    disc.setAttribute('cx', '24'); disc.setAttribute('cy', '24'); disc.setAttribute('r', '21');
+    disc.setAttribute('class', 'icon-body');
+    var hook = document.createElementNS(NS, 'path');
+    hook.setAttribute('d', 'M18 18.5a6 6 0 1 1 8.5 5.5c-1.6.8-2.5 2-2.5 3.8v1.2');
+    hook.setAttribute('class', 'icon-mark');
+    var dot = document.createElementNS(NS, 'circle');
+    dot.setAttribute('cx', '24'); dot.setAttribute('cy', '35'); dot.setAttribute('r', '2.25');
+    dot.setAttribute('class', 'icon-dot');
+    svg.appendChild(disc); svg.appendChild(hook); svg.appendChild(dot);
     return svg;
   }
 
