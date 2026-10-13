@@ -90,7 +90,7 @@ with open(secret_file_path, 'rb') as f:
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.config['configfile'] = config_dir / 'config.ini'
 
-parser = configparser.SafeConfigParser()
+parser = configparser.ConfigParser()
 parser.read(app.config['configfile'])
 
 replacelist = make_dict(parser, 'replacelist')
@@ -185,7 +185,11 @@ def run_query():
     ip = _get_user_ip(request)
     app.logger.info(f'{ip} {url}')
     if urlabuse_query.get_submissions(url) and urlabuse_query.get_submissions(url) >= autosend_threshold:
-        send(url, '', True)
+        try:
+            send(url, '', True)
+        except Exception as e:
+            # A mail server outage must not prevent the lookup itself.
+            app.logger.warning(f'Unable to autosend report for {url}: {e}')
     return enqueue('is_valid_url', {'url': url})
 
 

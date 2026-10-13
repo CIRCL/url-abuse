@@ -1,77 +1,100 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-{% import "bootstrap/fixes.html" as fixes %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CIRCL URL Abuse</title>
+  <meta name="description" content="Check a link against phishing and reputation sources before you trust it.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
+    </a>
+    <nav class="site-nav">
+      <a class="site-link" href="https://www.circl.lu/services/urlabuse/" target="_blank" rel="noopener">About this service</a>
+    <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
+      <picture>
+        <source srcset="{{ url_for('static', filename='logo-circl-dark.png') }}" media="(prefers-color-scheme: dark)">
+        <img src="{{ url_for('static', filename='logo-circl.png') }}" alt="CIRCL, Computer Incident Response Center Luxembourg" width="210" height="87">
+      </picture>
+    </a>
+    </nav>
+  </header>
 
-{% block title %}CIRCL URL Abuse{% endblock %}
+  <main>
+    <section class="intake" id="intake">
+      <h1>Check a link before you trust it.</h1>
+      <p class="lede">Paste a URL. We follow its redirects, resolve every host, and ask phishing and network reputation sources what they know.</p>
 
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-    <div align="right"> <a href="https://www.circl.lu/"><img src="https://www.circl.lu/pics/logo.png"/></a> </div>
-</div>
-{% endblock %}
+      <form id="lookup" class="lookup" novalidate>
+        <label for="url" class="sr-only">URL to check</label>
+        <input id="url" name="url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="https://example.com/login" required>
+        <button type="submit" class="btn-primary">Check URL</button>
+      </form>
+      <p class="form-hint" id="form-hint" hidden></p>
+    </section>
 
-{% block html_attribs %} ng-app="URLabuseApp" {% endblock html_attribs %}
-
-{% block body_attribs %} ng-controller="URLabuseController" {% endblock body_attribs %}
-
-{% block content %}
-<div class="container">
-    <h1>URL Abuse testing form</h1>
-    <h3><div align="center">URL Abuse is a public CIRCL service to review URL.<br /><a target="_blank" href="https://www.circl.lu/services/urlabuse/">For more information about the service</a></div></h3>
-  <br/>
-  {% raw %}
-  <div class="alert alert-success" ng-show="flash.getMessage()">
-      <center>{{ flash.getMessage() }}</center>
-  </div>
-  {% endraw %}
-  <br/>
-  <form class="form form-horizontal" method="post" role="form" ng-submit="getResults()">
-    {{ form.hidden_tag() }}
-    {{ wtf.form_errors(form, hiddens="only") }}
-    {%- for field in form %}
-        {% if not bootstrap_is_hidden_field(field) -%}
-            {{  wtf.form_field(field, form_type=form_type,
-                          horizontal_columns=horizontal_columns,
-                          button_map={"submit_button": "primary"}) }}
-        {%- endif %}
-    {%- endfor %}
-  </form>
-
-  {% raw %}
-  <div ng-show="query_url" class="ng-hide">
-      <center>
-          <h1>Report</h1>
-          <h3>{{ query_url }}</h3>
-          <h3><a href="{{ lookyloo_url }}" target="_blank">See on Lookyloo</a></h3>
-          <div class="alert alert-danger ng-hide" role="alert" ng-show="error">
-              {{ error }}
-          </div>
-      </center>
-      <div ng-hide="urls">
-          {% endraw %}
-          <center> <img src="{{ url_for('static', filename='ajax-loader.gif') }}"/> </center>
-          {% raw %}
+    <section class="report" id="report" hidden aria-live="polite">
+      <div class="subject">
+        <p class="subject-caption" id="subject-caption">Checking</p>
+        <p class="subject-url" id="subject-url"></p>
       </div>
-      <div ng-show="urls">
-        <br/>
-        <center><a href ng-click="submit_email()">Send report to CIRCL</a></center>
-        <br/>
+
+      <div class="progress" id="progress">
+        <div class="progress-track" id="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-label="Checks finished"></div>
+        <div class="progress-meta">
+          <span id="progress-text">Following redirects</span>
+          <span class="legend">
+            <span class="key key-bad">Flagged</span>
+            <span class="key key-ok">Clean</span>
+            <span class="key key-info">Data found</span>
+            <span class="key key-none">Nothing returned</span>
+          </span>
+        </div>
       </div>
-      <div ng-repeat="url in urls">
-        <div uq-urlreport="url"></div>
+
+      <div class="verdict" id="verdict" hidden></div>
+
+      <div class="actions" id="actions" hidden>
+        <button type="button" class="btn-primary" id="send-report">Send report to CIRCL</button>
+        <a class="btn-quiet" id="lookyloo" target="_blank" rel="noopener" hidden>Open capture in Lookyloo</a>
+        <span class="lookyloo-wait" id="lookyloo-wait">Capturing the page in Lookyloo…</span>
+        <button type="button" class="btn-quiet" id="new-check">Check another URL</button>
       </div>
-  </div>
-  {% endraw %}
 
+      <ol class="chain" id="chain"></ol>
+    </section>
+  </main>
 
-</div>
-{% endblock %}
+  <footer class="site">
+    <p>URL Abuse is a free service run by <a href="https://www.circl.lu/" target="_blank" rel="noopener">CIRCL</a>, the Computer Incident Response Center Luxembourg. Submitted URLs are logged and may be shared with CIRCL analysts.</p>
+  </footer>
 
-{% block head %}
-{{super()}}
-{{fixes.ie8()}}
-<script src="{{ url_for('static', filename='angular.min.js') }}"></script>
-<script src="{{ url_for('static', filename='ui-bootstrap-tpls.min.js') }}"></script>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
-{% endblock %}
+  <template id="tpl-hop">
+    <li class="hop">
+      <div class="hop-head">
+        <span class="hop-index"></span>
+        <p class="hop-url"></p>
+      </div>
+      <dl class="rows hop-rows"></dl>
+      <div class="hosts"></div>
+      <p class="skipped" hidden></p>
+    </li>
+  </template>
 
+  <template id="tpl-host">
+    <div class="host">
+      <p class="host-ip"></p>
+      <dl class="rows"></dl>
+    </div>
+  </template>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

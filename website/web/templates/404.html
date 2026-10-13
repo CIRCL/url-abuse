@@ -1,8 +1,32 @@
-{% extends "index.html" %}
-{% block title %}Page Not Found{% endblock %}
-{% block body %}
-  <h1>Page Not Found</h1>
-  <p>What you were looking for is just not there.
-  <p><a href="{{ url_for('index') }}">Back to index.</a>
-{% endblock %}
-
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='logo-urlabuse.png') }}" alt="CIRCL URL Abuse" width="559" height="160">
+    </a>
+    <a class="org-logo" href="https://www.circl.lu/" target="_blank" rel="noopener">
+      <picture>
+        <source srcset="{{ url_for('static', filename='logo-circl-dark.png') }}" media="(prefers-color-scheme: dark)">
+        <img src="{{ url_for('static', filename='logo-circl.png') }}" alt="CIRCL, Computer Incident Response Center Luxembourg" width="210" height="87">
+      </picture>
+    </a>
+  </header>
+  <main>
+    <section class="lost">
+      <h1>This page doesn't exist.</h1>
+      <p>The address may be mistyped, or the page was removed.</p>
+      <a class="btn-primary" href="{{ url_for('index') }}" style="text-decoration:none;display:inline-block">Check a URL</a>
+    </section>
+  </main>
+</body>
+</html>
