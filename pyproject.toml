@@ -36,6 +36,7 @@ pytest = "*"
 requests = "*"
 types-requests = "*"
 types-redis = "*"
+fakeredis = "^2.39.0"
 
 [build-system]
 requires = ["poetry-core>=2.0"]

@@ -62,7 +62,9 @@ bin/                 Entry points (pyproject [project.scripts]): start, stop,
 urlabuse/default/    Plumbing shared with Lookyloo: get_homedir() (+ .env),
                      get_config() (config/*.json, fallback on the .sample),
                      get_socket_path(), AbstractManager (daemon base class)
-urlabuse/            Core (providers, jobs, cache: roadmap steps 3-5)
+urlabuse/providers/  Provider interface + registry (doc/providers.md)
+urlabuse/cache.py    Provider answers cache in Valkey
+urlabuse/            Core (jobs: roadmap step 5)
 website/web/         Flask app: __init__.py (pages + flask-restx Api, Swagger
                      at /doc/), genericapi.py (API v2 at /api/v2), proxied.py
   templates/         index.html (new interface), error.html (404/405/500, doc/api/v2.md)

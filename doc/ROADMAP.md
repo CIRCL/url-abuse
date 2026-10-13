@@ -76,7 +76,7 @@ v1 endpoints); the Google Fonts link of `index.html` is handled in step 8.
 
 ## Step 3 — Provider interface and cache
 
-- [ ] `urlabuse/providers/base.py`:
+- [x] `urlabuse/providers/base.py`:
   ```python
   class Provider(ABC):
       name: str                       # 'virustotal', 'lookyloo', ...
@@ -87,9 +87,13 @@ v1 endpoints); the Google Fonts link of `index.html` is handled in step 8.
   `ProviderResult`: `status` (`ok` | `not_configured` | `error` | `pending`),
   `data` (raw answer), `verdict` (`malicious` | `suspicious` | `clean` |
   `unknown`, reputation sources only), `links` (permalinks).
-- [ ] Registry built from `config/providers.json`.
-- [ ] Cache per (provider, value) with TTL in Valkey.
-- [ ] Doc: `doc/providers.md` (how to write a provider).
+- [x] Registry built from `config/providers.json`.
+- [x] Cache per (provider, value) with TTL in Valkey.
+- [x] Doc: `doc/providers.md` (how to write a provider).
+
+**Done** ✔ `urlabuse/providers/`, `urlabuse/cache.py`, 15 unit tests
+(`tests/unit/test_providers.py`). Statuses also have `not_applicable`
+(kind not taken), and kinds are `url` / `hostname` / `ip`.
 
 ## Step 4 — Providers
 
