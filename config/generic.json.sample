@@ -6,16 +6,20 @@
   "report": {
     "enabled": false,
     "sender": "urlabuse@circl.lu",
-    "recipients": ["info@circl.lu"],
+    "recipients": [
+      "info@circl.lu"
+    ],
     "smtp_host": "localhost",
     "smtp_port": 25,
     "autosend_threshold": 5
   },
+  "analysis_workers": 4,
   "_notes": {
     "loglevel": "Python log level of the daemons: DEBUG, INFO, WARNING, ERROR",
     "website_listen_ip": "IP the website (gunicorn) listens on",
     "website_listen_port": "Port the website listens on",
     "public_domain": "Domain where the instance is reachable, used in the reports",
-    "report": "Reports sent to CIRCL (POST /submit and /api/v2/report): enabled, sender, recipients, SMTP server, and how many submissions of the same URL in a day trigger an automatic report"
+    "report": "Reports sent to CIRCL (POST /submit and /api/v2/report): enabled, sender, recipients, SMTP server, and how many submissions of the same URL in a day trigger an automatic report",
+    "analysis_workers": "How many analyses run at the same time (the provider calls of each analysis run in parallel, 8 per analysis)"
   }
 }

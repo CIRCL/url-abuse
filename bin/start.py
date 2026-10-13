@@ -16,6 +16,9 @@ def main() -> None:
         print('Failed to start the backend, exiting.')
         return
     print('done.')
+    print('Start analysis worker...')
+    Popen(['analysis_worker'])
+    print('done.')
     print('Start website...')
     Popen(['start_website'])
     print('done.')

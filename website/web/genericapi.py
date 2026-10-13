@@ -7,13 +7,26 @@ from __future__ import annotations
 from importlib.metadata import version
 from typing import Any
 
-from flask_restx import Namespace, Resource  # type: ignore[import-untyped]
+from flask import request
+from flask_restx import Namespace, Resource, fields  # type: ignore[import-untyped]
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
+from urlabuse.analysis import Analyses, InvalidURL, normalise_url
+from urlabuse.cache import Cache
 from urlabuse.default import get_socket_path
+from urlabuse.providers import Providers
 
 api = Namespace('GenericAPI', description='URL Abuse API v2', path='/api/v2')
+
+_analyses: Analyses | None = None
+
+
+def analyses() -> Analyses:
+    global _analyses
+    if _analyses is None:
+        _analyses = Analyses(Providers(Cache()))
+    return _analyses
 
 
 @api.route('/health')
@@ -27,3 +40,58 @@ class Health(Resource):  # type: ignore[misc]
             db_up = False
         return {'status': 'ok' if db_up else 'degraded', 'database': db_up,
                 'version': version('urlabuse')}, 200 if db_up else 503
+
+
+analyse_input = api.model('AnalyseInput', {
+    'url': fields.String(required=True, description='URL to check. hxxp is accepted, http:// is added when there is no scheme.',
+                         example='https://example.com/login'),
+})
+analyse_created = api.model('AnalyseCreated', {
+    'uuid': fields.String(description='UUID of the analysis, to poll with GET /api/v2/analyse/{uuid}'),
+    'url': fields.String(description='The URL as it is checked (normalised)'),
+})
+
+
+@api.route('/analyse')
+class Analyse(Resource):  # type: ignore[misc]
+
+    @api.doc(description='Start the analysis of a URL: capture in Lookyloo (redirect chain), then every '
+                         'configured provider on each URL of the chain and on each IP of their hosts.')
+    @api.expect(analyse_input, validate=True)
+    @api.response(201, 'Analysis queued', analyse_created)
+    @api.response(400, 'Invalid URL')
+    def post(self) -> tuple[dict[str, Any], int]:
+        try:
+            url = normalise_url(str((request.get_json(silent=True) or {}).get('url', '')))
+        except InvalidURL as e:
+            return {'status': 400, 'error': 'Invalid URL', 'message': str(e)}, 400
+        return {'uuid': analyses().create(url), 'url': url}, 201
+
+
+@api.route('/analyse/<string:analysis_uuid>')
+@api.doc(params={'analysis_uuid': 'UUID returned by POST /api/v2/analyse'})
+class AnalyseResult(Resource):  # type: ignore[misc]
+
+    @api.doc(description='State of an analysis: status (queued, running, done, failed), progress, the '
+                         'Lookyloo capture, the redirect chain with the answer of every provider on each '
+                         'URL and IP, and the overall verdict of the reputation providers. Poll it until '
+                         'status is done or failed.')
+    @api.response(200, 'The analysis')
+    @api.response(404, 'Unknown (or expired) analysis')
+    def get(self, analysis_uuid: str) -> tuple[dict[str, Any], int]:
+        result = analyses().get(analysis_uuid)
+        if result is None:
+            return {'status': 404, 'error': 'Not Found', 'message': 'Unknown or expired analysis.'}, 404
+        return result, 200
+
+
+@api.route('/providers')
+class ProvidersList(Resource):  # type: ignore[misc]
+
+    @api.doc(description='Providers known by this instance, the kinds of values they take '
+                         '(url, hostname, ip) and whether they are configured.')
+    def get(self) -> list[dict[str, Any]]:
+        return [{'name': p.name, 'label': p.label or p.name, 'description': p.description,
+                 'accepts': sorted(k.value for k in p.accepts), 'reputation': p.reputation,
+                 'configured': p.configured}
+                for p in analyses().providers.all()]
