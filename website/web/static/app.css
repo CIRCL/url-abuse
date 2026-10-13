@@ -574,6 +574,9 @@ dd[data-state="bad"] .val { color: var(--bad); font-weight: 600; }
 
 .lost { padding-top: clamp(3rem, 12vh, 8rem); }
 .lost p { color: var(--muted); font-size: 1.125rem; margin: 1rem 0 2rem; }
+.lost .lost-code { font: 500 0.875rem/1 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 1rem; }
+.lost-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
+.lost-actions .btn-primary { display: inline-block; text-decoration: none; }
 
 /* Small screens */
 

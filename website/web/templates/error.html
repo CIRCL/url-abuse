@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Page not found</title>
+  <title>{{ title }} · CIRCL URL Abuse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,9 +23,13 @@
   </header>
   <main>
     <section class="lost">
-      <h1>This page doesn't exist.</h1>
-      <p>The address may be mistyped, or the page was removed.</p>
-      <a class="btn-primary" href="{{ url_for('index') }}" style="text-decoration:none;display:inline-block">Check a URL</a>
+      <p class="lost-code">Error {{ code }}</p>
+      <h1>{{ title }}</h1>
+      <p>{{ message }}</p>
+      <div class="lost-actions">
+        <a class="btn-primary" href="{{ url_for('index') }}">Check a URL</a>
+        <a class="site-link" href="{{ url_for('doc') }}">API documentation</a>
+      </div>
     </section>
   </main>
 </body>

@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from importlib.metadata import version
 
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
+from flask.typing import ResponseReturnValue
+from werkzeug.exceptions import HTTPException, InternalServerError
 from flask_restx import Api  # type: ignore[import-untyped]
 
 from .genericapi import api as generic_api
@@ -25,6 +27,37 @@ pkg_version = version('urlabuse')
 @app.route('/', methods=['GET', 'HEAD'])
 def index() -> str:
     return render_template('index.html')
+
+
+# Error pages: JSON under /api/ (and for clients that only accept JSON), the
+# error page otherwise. Doc: doc/api/v2.md (errors)
+ERROR_MESSAGES = {
+    404: ('This page doesn\'t exist.', 'The address may be mistyped, or the page was removed.'),
+    405: ('This method is not allowed here.', 'This address exists, but not for this kind of request.'),
+    500: ('Something went wrong on our side.', 'The error was logged. Try again in a moment.'),
+}
+
+
+def _wants_json() -> bool:
+    if request.path.startswith('/api/'):
+        return True
+    best = request.accept_mimetypes.best_match(['text/html', 'application/json'])
+    return best == 'application/json'
+
+
+@app.errorhandler(HTTPException)
+def http_error(error: HTTPException) -> ResponseReturnValue:
+    code = error.code or 500
+    title, message = ERROR_MESSAGES.get(code, (error.name, error.description or ''))
+    if _wants_json():
+        return jsonify({'status': code, 'error': error.name, 'message': error.description}), code
+    return render_template('error.html', code=code, title=title, message=message), code
+
+
+@app.errorhandler(Exception)
+def unhandled_error(error: Exception) -> ResponseReturnValue:
+    app.logger.exception('Unhandled error')
+    return http_error(InternalServerError())
 
 
 api = Api(app, title='URL Abuse API',

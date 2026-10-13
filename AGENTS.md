@@ -65,7 +65,7 @@ urlabuse/default/    Plumbing shared with Lookyloo: get_homedir() (+ .env),
 urlabuse/            Core (providers, jobs, cache: roadmap steps 3-5)
 website/web/         Flask app: __init__.py (pages + flask-restx Api, Swagger
                      at /doc/), genericapi.py (API v2 at /api/v2), proxied.py
-  templates/         index.html (new interface)
+  templates/         index.html (new interface), error.html (404/405/500, doc/api/v2.md)
   static/            app.css, app.js, logos (new interface)
 config/              *.json.sample (committed) -> *.json (git-ignored):
                      generic, providers (credentials), logging

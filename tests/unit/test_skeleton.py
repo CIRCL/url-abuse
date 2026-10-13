@@ -52,3 +52,23 @@ def test_health_answers(client: FlaskClient) -> None:
     data = r.get_json()
     assert r.status_code in (200, 503)
     assert data['status'] in ('ok', 'degraded') and 'version' in data
+
+
+def test_404_page(client: FlaskClient) -> None:
+    r = client.get('/does-not-exist', headers={'Accept': 'text/html'})
+    assert r.status_code == 404 and b'Error 404' in r.data and b"doesn&#39;t exist" in r.data
+
+
+def test_404_json_under_api(client: FlaskClient) -> None:
+    r = client.get('/api/v2/nope')
+    assert r.status_code == 404 and r.get_json()['status'] == 404
+
+
+def test_404_json_when_asked(client: FlaskClient) -> None:
+    r = client.get('/nope', headers={'Accept': 'application/json'})
+    assert r.status_code == 404 and r.is_json
+
+
+def test_405_page(client: FlaskClient) -> None:
+    r = client.delete('/', headers={'Accept': 'text/html'})
+    assert r.status_code == 405 and b'Error 405' in r.data
