@@ -6,6 +6,27 @@
 
 URL Abuse is a versatile free software for URL review, analysis and black-list reporting. URL Abuse is composed of a web interface where requests are submitted asynchronously and a back-end system to process the URLs into features modules.
 
+## Architecture (planned)
+
+![URL Abuse × Lookyloo: planned architecture](./doc/architecture/urlabuse-lookyloo.png "URL Abuse is an API broker for URLs; Lookyloo is one provider")
+
+URL Abuse is being rebuilt as an **API broker for URLs**: it receives a URL,
+forwards it to providers and returns their answers. It does no analysis of its
+own.
+
+- **Clients**: analysts use the new web interface; existing integrations keep
+  using the public API, whose format and incoming data stream are kept for
+  compatibility.
+- **Providers**: [Lookyloo](https://github.com/Lookyloo/lookyloo), called
+  through [PyLookyloo](https://github.com/Lookyloo/PyLookyloo), is one provider
+  among others. MISP modules and other pivot services (DNS, WHOIS, reputation…)
+  will be added the same way.
+- Nothing specific to URL Abuse is added to Lookyloo.
+
+Interactive version: [project-graph](https://ecrou-exact.github.io/project-graph/?example=urlabuse)
+(source: [`doc/architecture/urlabuse-lookyloo.json`](./doc/architecture/urlabuse-lookyloo.json)).
+The decisions behind it are listed in [AGENTS.md](./AGENTS.md).
+
 ## Features
 
  - HTTP redirects analysis and follows

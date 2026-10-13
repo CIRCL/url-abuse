@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "URL Abuse × Lookyloo",
+    "description": "Planned architecture: URL Abuse is an API broker for URLs (rebuilt backend, web view, public API and incoming data stream kept): it forwards each URL to the providers and returns their answers; Lookyloo is one provider called through PyLookyloo; other providers come later. Arrows show the calls and the data flows.",
+    "fixedLayout": true
+  },
+  "nodeTypes": {
+    "box": {
+      "label": "Actor / tool",
+      "shape": "card",
+      "color": "#ffffff",
+      "borderColor": "#9aa3b5",
+      "borderWidth": 2,
+      "padding": 12,
+      "labelSize": 19,
+      "labelFont": "hand"
+    },
+    "step": {
+      "label": "URL Abuse component",
+      "shape": "card",
+      "color": "#ffffff",
+      "borderColor": "#1971c2",
+      "borderWidth": 2,
+      "padding": 8,
+      "labelSize": 18,
+      "labelFont": "hand",
+      "labelColor": "#1e1e1e"
+    },
+    "later": {
+      "label": "Planned provider",
+      "shape": "card",
+      "color": "#f8f9fa",
+      "borderColor": "#adb5bd",
+      "borderWidth": 2,
+      "padding": 8,
+      "labelSize": 18,
+      "labelFont": "hand",
+      "labelColor": "#5c6373"
+    },
+    "note-card": {
+      "label": "Notes",
+      "shape": "card",
+      "color": "#fff9db",
+      "borderColor": "#f08c00",
+      "borderWidth": 2,
+      "padding": 16,
+      "labelSize": 17,
+      "labelFont": "hand",
+      "labelColor": "#1e1e1e"
+    }
+  },
+  "edgeTypes": {},
+  "tags": {},
+  "sections": [
+    {
+      "id": "title",
+      "title": "URL Abuse × Lookyloo",
+      "x": 450,
+      "y": 8,
+      "width": 600,
+      "height": 76,
+      "titleSize": 40,
+      "color": "#1e1e1e",
+      "underline": false,
+      "fill": "none",
+      "borderColor": "none",
+      "titleFont": "hand"
+    },
+    {
+      "id": "clients",
+      "title": "Clients",
+      "x": 20,
+      "y": 110,
+      "width": 360,
+      "height": 540,
+      "titleSize": 26,
+      "titleFont": "hand",
+      "color": "#5c6373",
+      "underline": false
+    },
+    {
+      "id": "orchestrator",
+      "title": "URL Abuse: API broker for URLs",
+      "x": 420,
+      "y": 110,
+      "width": 570,
+      "height": 540,
+      "titleSize": 26,
+      "titleFont": "hand",
+      "color": "#1971c2",
+      "underline": false
+    },
+    {
+      "id": "providers",
+      "title": "Providers",
+      "x": 1030,
+      "y": 110,
+      "width": 450,
+      "height": 540,
+      "titleSize": 26,
+      "titleFont": "hand",
+      "color": "#e8590c",
+      "underline": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "analysts",
+      "label": "Analysts\n(browser)",
+      "type": "box",
+      "x": 200,
+      "y": 330,
+      "width": 220,
+      "height": 90,
+      "description": "People who check a suspicious link through the URL Abuse web interface."
+    },
+    {
+      "id": "integrations",
+      "label": "Existing integrations\n(scripts, feeds, partners)",
+      "type": "box",
+      "x": 200,
+      "y": 520,
+      "width": 250,
+      "height": 110,
+      "description": "Tools that already push URLs to URL Abuse and read its results. They keep working: the API and the incoming data stream keep their format."
+    },
+    {
+      "id": "urlabuse",
+      "label": "URL Abuse",
+      "type": "box",
+      "x": 705,
+      "y": 225,
+      "width": 270,
+      "height": 100,
+      "description": "URL Abuse (CIRCL): an API broker for URLs. It receives a URL, forwards it to the providers and returns their answers through one API. No analysis of its own: the logic stays in the providers.",
+      "image": "logos/url-abuse.png",
+      "imageSize": 220,
+      "hideLabel": true,
+      "url": "https://www.circl.lu/urlabuse/",
+      "github": "CIRCL/url-abuse"
+    },
+    {
+      "id": "ui",
+      "label": "Web view\n(new interface)",
+      "type": "step",
+      "x": 560,
+      "y": 380,
+      "width": 190,
+      "height": 90,
+      "description": "The new URL Abuse interface: per-check progress and a clear verdict."
+    },
+    {
+      "id": "api",
+      "label": "Public API\n(kept, same format)",
+      "type": "step",
+      "x": 560,
+      "y": 520,
+      "width": 210,
+      "height": 90,
+      "description": "The URL Abuse API is maintained so that existing clients keep working."
+    },
+    {
+      "id": "backend",
+      "label": "Broker (rebuilt)\nforwards the URL to the\nproviders, returns\ntheir answers",
+      "type": "step",
+      "x": 845,
+      "y": 450,
+      "width": 250,
+      "height": 140,
+      "description": "The URL Abuse backend is rewritten as a broker: one call per provider through its client library (PyLookyloo, ...), answers returned as they are, side by side. No analysis logic of its own."
+    },
+    {
+      "id": "lookyloo",
+      "label": "Lookyloo",
+      "type": "box",
+      "x": 1255,
+      "y": 250,
+      "width": 220,
+      "height": 160,
+      "description": "Lookyloo is one provider among others: captures the URL in a real browser (redirects, resources, screenshot, tree, indexes). Nothing URL Abuse specific is added to Lookyloo.",
+      "image": "logos/circl/lookyloo.png",
+      "imageSize": 100,
+      "hideLabel": false,
+      "url": "https://www.lookyloo.eu",
+      "github": "Lookyloo/lookyloo"
+    },
+    {
+      "id": "misp-modules",
+      "label": "MISP modules\n(later)",
+      "type": "later",
+      "x": 1255,
+      "y": 450,
+      "width": 230,
+      "height": 120,
+      "description": "Planned provider: expansion and enrichment modules of MISP.",
+      "github": "MISP/misp-modules",
+      "image": "logos/misp.png",
+      "imageSize": 60
+    },
+    {
+      "id": "other-services",
+      "label": "Other services\n(DNS, WHOIS, reputation...)\n(later)",
+      "type": "later",
+      "x": 1255,
+      "y": 590,
+      "width": 260,
+      "height": 110,
+      "description": "Planned providers: a URL is a pivot towards many services; each one is plugged into the URL Abuse backend the same way."
+    },
+    {
+      "id": "decisions",
+      "label": "Decisions\n\n• URL Abuse is only an API broker for URLs: it forwards to the providers and returns their answers.\n• One implementation: the analysis lives in the providers (Lookyloo...), nothing is duplicated in URL Abuse.\n• Lookyloo stays a provider like any other, called with PyLookyloo (which has all the calls); no URL Abuse view or logic inside Lookyloo.\n• The URL Abuse API and the incoming data stream are kept for compatibility.\n• Other providers (MISP modules, pivot services) are added later in the same way.",
+      "type": "note-card",
+      "x": 750,
+      "y": 810,
+      "width": 1420,
+      "height": 210,
+      "description": "What was agreed for the URL Abuse / Lookyloo integration."
+    }
+  ],
+  "edges": [],
+  "arrows": [
+    {
+      "id": "analysts-ui",
+      "from": {
+        "node": "analysts"
+      },
+      "to": {
+        "node": "ui"
+      },
+      "label": "check a link",
+      "color": "#343a40",
+      "labelFont": "hand",
+      "labelSize": 15
+    },
+    {
+      "id": "integrations-api",
+      "from": {
+        "node": "integrations"
+      },
+      "to": {
+        "node": "api"
+      },
+      "label": "data stream\n(unchanged)",
+      "color": "#343a40",
+      "labelFont": "hand",
+      "labelSize": 15,
+      "description": "The data arriving in URL Abuse keeps its format for compatibility."
+    },
+    {
+      "id": "ui-backend",
+      "from": {
+        "node": "ui"
+      },
+      "to": {
+        "node": "backend"
+      },
+      "color": "#1971c2"
+    },
+    {
+      "id": "api-backend",
+      "from": {
+        "node": "api"
+      },
+      "to": {
+        "node": "backend"
+      },
+      "color": "#1971c2"
+    },
+    {
+      "id": "backend-lookyloo",
+      "from": {
+        "node": "backend",
+        "at": [
+          1,
+          0.2
+        ]
+      },
+      "to": {
+        "node": "lookyloo",
+        "at": [
+          0,
+          0.7
+        ]
+      },
+      "direction": "both",
+      "label": "PyLookyloo\ncapture, redirects,\ntree, indexes",
+      "color": "#1c5cff",
+      "labelFont": "hand",
+      "labelSize": 15,
+      "description": "URL Abuse calls Lookyloo through PyLookyloo, which exposes all the Lookyloo calls; results come back to the backend."
+    },
+    {
+      "id": "backend-misp-modules",
+      "from": {
+        "node": "backend",
+        "at": [
+          1,
+          0.5
+        ]
+      },
+      "to": {
+        "node": "misp-modules"
+      },
+      "label": "later",
+      "color": "#868e96",
+      "dashed": true,
+      "labelFont": "hand",
+      "labelSize": 15
+    },
+    {
+      "id": "backend-other",
+      "from": {
+        "node": "backend",
+        "at": [
+          1,
+          0.85
+        ]
+      },
+      "to": {
+        "node": "other-services"
+      },
+      "label": "later",
+      "color": "#868e96",
+      "dashed": true,
+      "labelFont": "hand",
+      "labelSize": 15
+    }
+  ]
+}
