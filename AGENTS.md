@@ -125,6 +125,23 @@ poetry run ruff check . && poetry run mypy . && poetry run python -m pytest test
   `GET /api/v2/analyse/<uuid>` and updates the rows that changed (doc/api/v2.md).
   Each provider has a reader in `static/app.js` (`readers`).
 
+## Where we left off (2026-10-13)
+
+- Done: new skeleton, providers `lookyloo`, `dns`, `bgpranking`, analysis jobs
+  + worker, API v2 (`/analyse`, `/providers`, `/validate`,
+  `/providers/<name>/query`, `/queries/<uuid>`, `/cached`, `/report`), API v1
+  rebuilt on top, web page on API v2 with the four verdict blocks. 80 unit
+  tests pass.
+- Next (see `doc/ROADMAP.md`, unchecked boxes): providers with API keys
+  (`phishtank`, `virustotal`, `googlesafebrowsing`, `eupi`), then `pdns_circl`,
+  `pssl_circl`, `whois`/RDAP; retries and rate limiting; `pyurlabuse`
+  `analyse()`; list the incoming feeds with the owner; remove the old code.
+- To see the red and green verdicts locally, add at least one reputation key
+  (Google Safe Browsing is free) in `config/providers.json`; without keys the
+  page shows the slate "We can't tell" block, which is expected. Test URLs:
+  `https://testsafebrowsing.appspot.com/s/phishing.html` (flagged),
+  `https://www.circl.lu/` (not flagged).
+
 ## Open points
 
 - Who sends data to URL Abuse today (feeds, partners, scripts) and in which
