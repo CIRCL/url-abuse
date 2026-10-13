@@ -135,7 +135,7 @@ def test_unknown_analysis() -> None:
 def client(monkeypatch: pytest.MonkeyPatch) -> FlaskClient:
     from website.web import app, genericapi
     analyses = make(FakeDNS, FakeNetwork)
-    monkeypatch.setattr(genericapi, '_analyses', analyses)
+    monkeypatch.setattr(genericapi, 'get_analyses', lambda: analyses)
     return app.test_client()
 
 

@@ -68,6 +68,16 @@ def same_url(a: str, b: str) -> bool:
     return norm(a) == norm(b)
 
 
+def chain_from_capture(url: str, capture: ProviderResult | None) -> list[str]:
+    '''The checked URL, then the URLs of the Lookyloo capture it redirects to.'''
+    chain = [url]
+    if capture and capture.status == Status.ok and capture.data:
+        for hop in capture.data.get('redirects', []):
+            if not any(same_url(hop, known) for known in chain):
+                chain.append(hop)
+    return chain
+
+
 class Analyses:
     '''Create, read and run analyses. Keys (all expire after TTL):
         analysis|<uuid>           hash: url, status, created, finished, error
@@ -205,12 +215,9 @@ class Analyses:
                     schedule(ip, provider)
 
         def chain_stage(capture: ProviderResult) -> None:
-            if capture.status != Status.ok or not capture.data:
+            chain = chain_from_capture(url, capture)
+            if len(chain) == 1:
                 return
-            chain = [url]
-            for hop in capture.data.get('redirects', []):
-                if not any(same_url(hop, known) for known in chain):
-                    chain.append(hop)
             self.redis.set(f'{key}|chain', json.dumps(chain), ex=TTL)
             for hop in chain[1:]:
                 url_stage(hop)

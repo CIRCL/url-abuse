@@ -68,8 +68,11 @@ urlabuse/providers/  Provider interface + registry + one module per provider
 urlabuse/cache.py    Provider answers cache in Valkey
 urlabuse/analysis.py Analysis job: chain, URL and IP stages, verdict
                      (doc/architecture/jobs.md)
+urlabuse/legacy.py   API v1 checks on the providers, get_cache + digest (doc/api/v1.md)
+urlabuse/report.py   Reports to CIRCL by e-mail (doc/api/v2.md)
 website/web/         Flask app (doc/web.md): __init__.py (pages, errors, flask-restx
-                     Api), genericapi.py (API v2 at /api/v2), credits_data.py
+                     Api), genericapi.py (API v2 at /api/v2), legacy.py (API v1
+                     routes), helpers.py (shared objects), credits_data.py
                      (/credits list), proxied.py
   templates/         layouts/base.html (head, header, footer), partials/ (header,
                      footer), index.html, api.html (vitrine <vt-openapi>),

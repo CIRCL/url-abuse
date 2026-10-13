@@ -12,21 +12,13 @@ from flask_restx import Namespace, Resource, fields  # type: ignore[import-untyp
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from urlabuse.analysis import Analyses, InvalidURL, normalise_url
-from urlabuse.cache import Cache
+from urlabuse.analysis import InvalidURL, normalise_url
 from urlabuse.default import get_socket_path
-from urlabuse.providers import Providers
+from urlabuse.report import ReportsDisabled
+
+from .helpers import client_ip, get_analyses, get_reports
 
 api = Namespace('GenericAPI', description='URL Abuse API v2', path='/api/v2')
-
-_analyses: Analyses | None = None
-
-
-def analyses() -> Analyses:
-    global _analyses
-    if _analyses is None:
-        _analyses = Analyses(Providers(Cache()))
-    return _analyses
 
 
 @api.route('/health')
@@ -65,7 +57,7 @@ class Analyse(Resource):  # type: ignore[misc]
             url = normalise_url(str((request.get_json(silent=True) or {}).get('url', '')))
         except InvalidURL as e:
             return {'status': 400, 'error': 'Invalid URL', 'message': str(e)}, 400
-        return {'uuid': analyses().create(url), 'url': url}, 201
+        return {'uuid': get_analyses().create(url), 'url': url}, 201
 
 
 @api.route('/analyse/<string:analysis_uuid>')
@@ -79,7 +71,7 @@ class AnalyseResult(Resource):  # type: ignore[misc]
     @api.response(200, 'The analysis')
     @api.response(404, 'Unknown (or expired) analysis')
     def get(self, analysis_uuid: str) -> tuple[dict[str, Any], int]:
-        result = analyses().get(analysis_uuid)
+        result = get_analyses().get(analysis_uuid)
         if result is None:
             return {'status': 404, 'error': 'Not Found', 'message': 'Unknown or expired analysis.'}, 404
         return result, 200
@@ -94,4 +86,32 @@ class ProvidersList(Resource):  # type: ignore[misc]
         return [{'name': p.name, 'label': p.label or p.name, 'description': p.description,
                  'accepts': sorted(k.value for k in p.accepts), 'reputation': p.reputation,
                  'configured': p.configured}
-                for p in analyses().providers.all()]
+                for p in get_analyses().providers.all()]
+
+
+report_result = api.model('ReportResult', {
+    'sent': fields.Boolean(description='false when this host was already reported today'),
+    'message': fields.String(),
+})
+
+
+@api.route('/report')
+class Report(Resource):  # type: ignore[misc]
+
+    @api.doc(description='Send the results of a URL to CIRCL analysts by e-mail (at most once a day per host). '
+                         'Check the URL first: the report is built from the cached answers.')
+    @api.expect(analyse_input, validate=True)
+    @api.response(200, 'Sent, or already reported today', report_result)
+    @api.response(400, 'Invalid URL')
+    @api.response(503, 'Reports are not enabled on this instance')
+    def post(self) -> tuple[dict[str, Any], int]:
+        try:
+            url = normalise_url(str((request.get_json(silent=True) or {}).get('url', '')))
+        except InvalidURL as e:
+            return {'status': 400, 'error': 'Invalid URL', 'message': str(e)}, 400
+        try:
+            sent = get_reports().send(url, client_ip(request))
+        except ReportsDisabled as e:
+            return {'status': 503, 'error': 'Service Unavailable', 'message': str(e)}, 503
+        return {'sent': sent, 'message': 'Report sent to CIRCL.' if sent
+                else 'This host was already reported to CIRCL today.'}, 200

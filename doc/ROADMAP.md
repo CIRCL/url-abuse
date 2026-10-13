@@ -122,7 +122,7 @@ One commit per provider, each with unit tests (mocked HTTP) and a line in
       `dns` → IP providers per IP; results stored per node, progress counted.
 - [x] Worker daemon (`bin/analysis_worker.py`, `AbstractManager`), job TTL (7 days).
 - [ ] Retries per provider (timeouts are per provider config for now).
-- [ ] Report: digest text + JSON, sent to CIRCL at most once a day per URL.
+- [x] Report: digest text + JSON, sent to CIRCL at most once a day per host (`urlabuse/report.py`).
 - [x] Doc: `doc/architecture/jobs.md`.
 
 ## Step 6 — API v2 (the broker)
@@ -132,25 +132,30 @@ One commit per provider, each with unit tests (mocked HTTP) and a line in
       overall verdict, progress
 - [x] `GET /api/v2/providers` → providers, accepted types, configured or not
 - [ ] `POST /api/v2/providers/<name>` `{"value": …}` → one provider call
-- [ ] `POST /api/v2/report` → report to CIRCL
+- [x] `POST /api/v2/report` → report to CIRCL (once a day per host, `report` config)
 - [x] Input validation (http/https only, a host, 2048 characters max).
 - [ ] Rate limiting.
 - [x] Doc: Swagger (and `/api` with vitrine) + `doc/api/v2.md`.
 
 ## Step 7 — v1 compatibility layer
 
-- [ ] `website/web/legacy.py`: every v1 route reimplemented on top of the
+- [x] `website/web/legacy.py`: every v1 route reimplemented on top of the
       providers/jobs (`/start`, `/urls`, …, `/_result/<id>`, `/get_cache`,
       `/submit`, `/urlreport`), same payloads.
-- [ ] Step 1 contract suite passes against the **new** code.
+- [x] Step 1 contract suite passes against the **new** code.
 
 **Done when** the contract suite is green on the rebuild: the old code can go.
+
+✔ 21/21 contract tests pass on the rebuild, and the original `pyurlabuse`
+client (`run_query`) works unchanged. Not ported sources answer "not
+configured"; `/whois` answers `null` until WHOIS is ported; `/urlreport`
+redirects to the home page; `/submit` answers 503 when reports are disabled.
 
 ## Step 8 — Clients and entry points
 
 - [x] Web page (`static/app.js`): `POST /api/v2/analyse` + polling
       `GET /api/v2/analyse/<uuid>`; the segmented bar maps to the job's providers.
-      "Send report to CIRCL" is hidden until `POST /api/v2/report` exists.
+      "Send report to CIRCL" (POST /api/v2/report) shown when reports are enabled.
 - [ ] `pyurlabuse`: new `analyse()` on v2, old methods kept.
 - [ ] Incoming data stream: list the current feeds/integrations (who sends
       what, format — to confirm with the owner), keep their input, route to `analyse`.

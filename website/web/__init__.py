@@ -16,6 +16,8 @@ from flask_restx import Api  # type: ignore[import-untyped]
 
 from .credits_data import CREDITS
 from .genericapi import api as generic_api
+from .helpers import get_reports
+from .legacy import v1
 from .proxied import ReverseProxied
 
 app: Flask = Flask(__name__)
@@ -26,8 +28,8 @@ pkg_version = version('urlabuse')
 
 
 @app.context_processor
-def inject_layout() -> dict[str, str]:
-    return {'urlabuse_version': pkg_version}
+def inject_layout() -> dict[str, object]:
+    return {'urlabuse_version': pkg_version, 'report_enabled': get_reports().enabled}
 
 
 @app.route('/', methods=['GET', 'HEAD'])
@@ -75,6 +77,8 @@ def unhandled_error(error: Exception) -> ResponseReturnValue:
     app.logger.exception('Unhandled error')
     return http_error(InternalServerError())
 
+
+app.register_blueprint(v1)
 
 api = Api(app, title='URL Abuse API',
           description='API broker for URLs: send a URL, get the answers of every provider.',

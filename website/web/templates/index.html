@@ -46,7 +46,8 @@
       <div class="verdict" id="verdict" hidden></div>
 
       <div class="actions" id="actions" hidden>
-        <button type="button" class="btn-primary" id="send-report">Send report to CIRCL</button>
+        {# Shown only when reports are enabled ("report" in config/generic.json) #}
+        <button type="button" class="btn-primary" id="send-report" data-enabled="{{ 'true' if report_enabled else 'false' }}">Send report to CIRCL</button>
         <a class="btn-quiet" id="lookyloo" target="_blank" rel="noopener" hidden>Open capture in Lookyloo</a>
         <span class="lookyloo-wait" id="lookyloo-wait">Capturing the page in Lookyloo…</span>
         <button type="button" class="btn-quiet" id="new-check">Check another URL</button>

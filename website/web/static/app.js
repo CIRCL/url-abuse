@@ -453,8 +453,12 @@
     els.lookyloo.hidden = true;
     els.lookylooWait.hidden = false;
     els.lookylooWait.textContent = 'Capturing the page in Lookyloo…';
-    // Reports to CIRCL come back with POST /api/v2/report (doc/ROADMAP.md step 6)
-    els.send.hidden = true;
+    // Only when the instance sends reports (data-enabled, from config/generic.json)
+    els.send.hidden = els.send.dataset.enabled !== 'true';
+    els.send.disabled = false;
+    els.send.textContent = 'Send report to CIRCL';
+    var sent = els.actions.querySelector('.sent');
+    if (sent) sent.remove();
     var err = els.report.querySelector('.report-error');
     if (err) err.remove();
   }
@@ -494,6 +498,7 @@
 
     api('POST', 'analyse', { url: input }).then(function (created) {
       if (run !== token) return;
+      token.url = created.url;
       try { history.replaceState(null, '', '?url=' + encodeURIComponent(created.url)); } catch (e) { /* ignore */ }
       return poll(created.uuid);
     }).catch(function (err) {
@@ -525,6 +530,24 @@
     }
     els.hint.hidden = true;
     start(value);
+  });
+
+  els.send.addEventListener('click', function () {
+    if (!run || !run.url) return;
+    var token = run;
+    els.send.disabled = true;
+    els.send.textContent = 'Sending report…';
+    api('POST', 'report', { url: token.url }).then(function (answer) {
+      if (run !== token) return;
+      els.send.hidden = true;
+      els.send.after(el('span', { class: 'sent', role: 'status',
+        text: answer.sent ? 'Report sent to CIRCL' : 'Already reported to CIRCL today' }));
+    }).catch(function () {
+      if (run !== token) return;
+      els.send.disabled = false;
+      els.send.textContent = 'Send report to CIRCL';
+      showError("The report wasn't sent.", "This server couldn't deliver the email. Try again later, or write to info@circl.lu with the URL.");
+    });
   });
 
   els.again.addEventListener('click', function () {
