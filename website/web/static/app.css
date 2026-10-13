@@ -29,8 +29,37 @@
   color-scheme: light;
 }
 
+/* Dark theme: chosen with the footer toggle (data-theme="dark" on <html>,
+   static/theme.js), or automatic when the system is dark and the visitor
+   did not choose light. */
+
+:root[data-theme="dark"] {
+  --paper: #0f1720;
+  --surface: #16212c;
+  --ink: #e4eaf0;
+  --muted: #93a3b3;
+  --faint: #6b7b8b;
+  --line: #26343f;
+  --action: #8fbbd2;
+  --action-ink: #0f1720;
+  --ok: #4cc18e;
+  --warn: #e0a84a;
+  --bad: #f06470;
+  --info: #8fb0d0;
+  --idle: #2e3d4a;
+  --alarm: #b3202f;
+  --alarm-ring: rgba(240, 100, 112, 0.22);
+  --caution: #e0a84a;
+  --caution-ink: #2a1c02;
+  --clear: #1d6b4a;
+  --clear-ink: #ffffff;
+  --unknown: #3a4a57;
+  --unknown-ink: #ffffff;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --paper: #0f1720;
     --surface: #16212c;
     --ink: #e4eaf0;
@@ -128,8 +157,18 @@ header.site {
 .org-logo { display: block; line-height: 0; }
 .org-logo img { height: 2.5rem; width: auto; }
 
+:root[data-theme="dark"] .brand img { filter: brightness(1.45) saturate(0.9); }
 @media (prefers-color-scheme: dark) {
-  .brand img { filter: brightness(1.45) saturate(0.9); }
+  :root:not([data-theme="light"]) .brand img { filter: brightness(1.45) saturate(0.9); }
+}
+
+/* One image per theme (CIRCL logo) */
+.only-dark { display: none; }
+:root[data-theme="dark"] .only-dark { display: block; }
+:root[data-theme="dark"] .only-light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .only-dark { display: block; }
+  :root:not([data-theme="light"]) .only-light { display: none; }
 }
 
 .site-link { color: var(--muted); font-size: 0.9375rem; }
@@ -142,8 +181,75 @@ footer.site {
   color: var(--muted);
   font-size: 0.875rem;
 }
-footer.site p { max-width: 38rem; margin: 0; }
+footer.site p { max-width: 38rem; margin: 0 0 0.5rem; }
 footer.site a { color: inherit; }
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.footer-version { font-family: var(--mono); color: var(--faint); }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 0.875rem/1 var(--sans);
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--faint); }
+.theme-toggle:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+/* Icon: half disc = auto, empty ring = light, full disc = dark */
+.theme-toggle-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+.theme-toggle[data-choice="light"] .theme-toggle-icon { background: transparent; }
+.theme-toggle[data-choice="dark"] .theme-toggle-icon { background: currentColor; }
+
+/* Credits page */
+
+.credits-intro { padding-top: clamp(2rem, 6vh, 3.5rem); margin-bottom: 2rem; }
+.credits-intro p { color: var(--muted); font-size: 1.0625rem; max-width: 44rem; }
+.credits-section { margin-bottom: 2.5rem; }
+.credits-section h2 { font-size: 1.25rem; margin: 0 0 0.75rem; }
+.credits-table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; table-layout: fixed; }
+.credits-table th:nth-child(1) { width: 24%; }
+.credits-table th:nth-child(2) { width: 13%; }
+.credits-table th:nth-child(3) { width: 17%; }
+.credits-table th,
+.credits-table td { text-align: left; vertical-align: top; padding: 0.625rem 0.75rem 0.625rem 0; border-bottom: 1px solid var(--line); }
+.credits-table th { color: var(--muted); font-weight: 500; font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.credits-table td:nth-child(2),
+.credits-table td:nth-child(3) { font-family: var(--mono); font-size: 0.8125rem; white-space: nowrap; }
+.credits-table td:last-child { color: var(--muted); }
+@media (max-width: 36rem) {
+  .credits-table td:last-child, .credits-table th:last-child { display: none; }
+  .credits-table th:nth-child(1) { width: 45%; }
+  .credits-table th:nth-child(2), .credits-table th:nth-child(3) { width: auto; }
+}
 
 /* Intake */
 

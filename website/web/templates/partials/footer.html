@@ -1,0 +1,20 @@
+<footer class="site">
+  <div class="footer-about">
+    <p>URL Abuse is a free service run by <a href="https://www.circl.lu/" target="_blank" rel="noopener">CIRCL</a>, the Computer Incident Response Center Luxembourg. Submitted URLs are logged and may be shared with CIRCL analysts.</p>
+    <p>Developers: everything this site does is available through the <a href="{{ url_for('api_page') }}">URL Abuse API</a>.</p>
+  </div>
+  <div class="footer-bottom">
+    <ul class="footer-links">
+      <li><a href="{{ url_for('api_page') }}">API</a></li>
+      <li><a href="{{ url_for('credits') }}">Credits &amp; licenses</a></li>
+      <li><a href="https://github.com/CIRCL/url-abuse" target="_blank" rel="noopener">Source code</a></li>
+      <li><a href="https://www.circl.lu/services/urlabuse/" target="_blank" rel="noopener">About</a></li>
+      <li class="footer-version">v{{ urlabuse_version }}</li>
+    </ul>
+    {# js: theme.js. Cycles Auto -> Light -> Dark; the label is updated by the script #}
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Colour theme: automatic">
+      <span class="theme-toggle-icon" aria-hidden="true"></span>
+      <span class="theme-toggle-label">Auto</span>
+    </button>
+  </div>
+</footer>

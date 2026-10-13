@@ -14,6 +14,7 @@ from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import HTTPException, InternalServerError
 from flask_restx import Api  # type: ignore[import-untyped]
 
+from .credits_data import CREDITS
 from .genericapi import api as generic_api
 from .proxied import ReverseProxied
 
@@ -24,6 +25,11 @@ app.config['RESTX_MASK_SWAGGER'] = False
 pkg_version = version('urlabuse')
 
 
+@app.context_processor
+def inject_layout() -> dict[str, str]:
+    return {'urlabuse_version': pkg_version}
+
+
 @app.route('/', methods=['GET', 'HEAD'])
 def index() -> str:
     return render_template('index.html')
@@ -32,6 +38,11 @@ def index() -> str:
 @app.route('/api', methods=['GET'])
 def api_page() -> str:
     return render_template('api.html')
+
+
+@app.route('/credits', methods=['GET'])
+def credits() -> str:
+    return render_template('credits.html', credits=CREDITS)
 
 
 # Error pages: JSON under /api/ (and for clients that only accept JSON), the

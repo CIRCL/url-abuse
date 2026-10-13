@@ -65,11 +65,13 @@ urlabuse/default/    Plumbing shared with Lookyloo: get_homedir() (+ .env),
 urlabuse/providers/  Provider interface + registry (doc/providers.md)
 urlabuse/cache.py    Provider answers cache in Valkey
 urlabuse/            Core (jobs: roadmap step 5)
-website/web/         Flask app: __init__.py (pages + flask-restx Api, Swagger
-                     at /doc/), genericapi.py (API v2 at /api/v2), proxied.py
-  templates/         index.html (new interface), api.html (API reference with
-                     vitrine <vt-openapi>), error.html (404/405/500, doc/api/v2.md)
-  static/            app.css, app.js, api.js, logos (new interface)
+website/web/         Flask app (doc/web.md): __init__.py (pages, errors, flask-restx
+                     Api), genericapi.py (API v2 at /api/v2), credits_data.py
+                     (/credits list), proxied.py
+  templates/         layouts/base.html (head, header, footer), partials/ (header,
+                     footer), index.html, api.html (vitrine <vt-openapi>),
+                     credits.html, error.html
+  static/            app.css (tokens, light/dark), app.js, theme.js, api.js, logos
     vendor/          git-ignored, installed by tools/3rdparty.py (vitrine)
 config/              *.json.sample (committed) -> *.json (git-ignored):
                      generic, providers (credentials), logging
@@ -94,9 +96,9 @@ poetry run ruff check . && poetry run mypy . && poetry run python -m pytest test
 
 ## Web interface (redesign)
 
-- URL field: example links are "typed" letter by letter in its placeholder
-  (`app.js`, end of file); only the placeholder changes, it stops for good on
-  focus or input, and is off with `prefers-reduced-motion`.
+- Layout, footer, credits page, light/dark themes and the URL field
+  animation: `doc/web.md`. Add a line to `credits_data.py` for every new
+  library, font, service or provider.
 - One column: big intake ("Check a link before you trust it."), the checked
   URL typeset large in monospace (scheme faint, host bold, path muted), a
   **segmented progress bar where each segment is a real check**, then the

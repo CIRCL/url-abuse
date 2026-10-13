@@ -83,3 +83,17 @@ def test_api_page(client: FlaskClient) -> None:
     r = client.get('/api')
     assert r.status_code == 200
     assert b'<vt-openapi' in r.data and b'src="/swagger.json"' in r.data and b'href="/doc/"' in r.data
+
+
+def test_footer_on_every_page(client: FlaskClient) -> None:
+    for path in ('/', '/api', '/credits'):
+        page = client.get(path).data
+        assert b'id="theme-toggle"' in page and b'href="/credits"' in page, path
+        assert b'theme.js' in page
+    assert b'id="theme-toggle"' in client.get('/nope', headers={'Accept': 'text/html'}).data
+
+
+def test_credits_page(client: FlaskClient) -> None:
+    r = client.get('/credits')
+    assert r.status_code == 200
+    assert b'Vitrine' in r.data and b'Flask-RESTX' in r.data and b'Affero' in r.data

@@ -1,0 +1,34 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Credits & licenses · {% endblock %}
+{% block description %}Software, fonts and services URL Abuse is built with, and their licenses.{% endblock %}
+
+{% block main %}
+    <section class="credits-intro">
+      <h1>Credits &amp; licenses</h1>
+      <p>URL Abuse is free software by <a href="https://www.circl.lu/" target="_blank" rel="noopener">CIRCL</a>,
+        released under the <a href="https://github.com/CIRCL/url-abuse/blob/master/LICENSE" target="_blank" rel="noopener">GNU Affero General Public License v3</a>.
+        It is built with the open source projects and services below; thanks to their authors.</p>
+    </section>
+
+    {% for section, credits in credits.items() %}
+    <section class="credits-section">
+      <h2>{{ section }}</h2>
+      <table class="credits-table">
+        <thead>
+          <tr><th scope="col">Project</th><th scope="col">Version</th><th scope="col">License</th><th scope="col">Used for</th></tr>
+        </thead>
+        <tbody>
+          {% for credit in credits %}
+          <tr>
+            <td><a href="{{ credit.url }}" target="_blank" rel="noopener">{{ credit.name }}</a></td>
+            <td>{{ credit.version or '—' }}</td>
+            <td>{{ credit.license }}</td>
+            <td>{{ credit.role }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endfor %}
+{% endblock %}
