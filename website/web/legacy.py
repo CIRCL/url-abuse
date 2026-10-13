@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 '''API v1 routes, same requests and answers as before the rebuild
-(doc/api/v1.md, checked by tests/contract). New clients: API v2.'''
+(doc/api/v1.md, checked by tests/contract). Documented in the Swagger
+description as "API v1 (legacy)"; new clients: API v2.'''
 
 from __future__ import annotations
 
@@ -9,18 +10,28 @@ import json
 
 from typing import Any
 
-from flask import Blueprint, Response, current_app, redirect, render_template, request, url_for
-from flask.typing import ResponseReturnValue
+from flask import Response, current_app, redirect, render_template, request, url_for
+from flask_restx import Namespace, Resource, fields  # type: ignore[import-untyped]
 
 from urlabuse.report import ReportsDisabled
 
 from .helpers import client_ip, get_legacy, get_reports
 
-v1 = Blueprint('v1', __name__)
+api = Namespace('API v1 (legacy)', path='/',
+                description='The endpoints of URL Abuse before the rebuild, kept unchanged for existing '
+                            'clients (pyurlabuse, scripts). Every check returns a job id as plain text, '
+                            'to poll with GET /_result/{job_id}. New clients: use API v2.')
 
-# v1 checks of sources that are not ported (yet): "not configured" (empty body)
-NOT_CONFIGURED = ('phishtank', 'virustotal_report', 'googlesafebrowsing', 'eupi',
-                  'pdnscircl', 'psslcircl', 'urlquery', 'ticket')
+url_input = api.model('V1Url', {'url': fields.String(required=True, example='http://example.com/')})
+query_input = api.model('V1Query', {'query': fields.String(required=True, example='http://example.com/')})
+cache_input = api.model('V1Cache', {
+    'query': fields.String(required=True, example='http://example.com/'),
+    'digest': fields.Boolean(default=False, description='Add the text digest, abuse e-mails and ASNs'),
+})
+
+JOB_DOC = 'Returns a job id (text/plain); poll GET /_result/{job_id} for the result.'
+NOT_CONFIGURED_DOC = ('Returns an empty body: this source is not set up on this instance '
+                      '(not ported yet, or no credentials).')
 
 
 def _body() -> dict[str, Any]:
@@ -28,79 +39,115 @@ def _body() -> dict[str, Any]:
     return request.get_json(force=True, silent=True) or {}
 
 
+def _text(value: str) -> Response:
+    return Response(value, mimetype='text/html')
+
+
 def _json(data: Any, status: int=200) -> Response:
     return Response(json.dumps(data), status=status, mimetype='application/json')
 
 
-@v1.route('/start', methods=['POST'])
-def start() -> str:
-    url = str(_body().get('url', ''))
-    reports = get_reports()
-    if reports.should_autosend(reports.count_submission(url)):
+def _job_route(path: str, method: str, model: Any, field: str, param: str, doc: str) -> None:
+    @api.route(f'/{path}', endpoint=f'v1_{path}')
+    class Job(Resource):  # type: ignore[misc]
+        @api.doc(description=f'{doc} {JOB_DOC}')
+        @api.expect(model)
+        @api.response(200, 'Job id (text)')
+        def post(self) -> Response:
+            return _text(get_legacy().create(method, **{param: str(_body().get(field, ''))}))
+
+
+_job_route('urls', 'url_list', url_input, 'url', 'url',
+           'Redirect chain of the URL (from the Lookyloo capture). Result: list of URLs.')
+_job_route('resolve', 'dns_resolve', url_input, 'url', 'url',
+           'Addresses of the host of the URL. Result: [IPv4 list or null, IPv6 list or null].')
+_job_route('lookyloo', 'lookyloo', url_input, 'url', 'url',
+           'Captures the URL in Lookyloo. Result: permalink of the capture, or null.')
+_job_route('bgpranking', 'bgpranking', query_input, 'query', 'ip',
+           'Network of an IP. Result: [asn, prefix, asn_description, rank, position, total_known_asns].')
+_job_route('whois', 'whois', query_input, 'query', 'query',
+           'Abuse contacts of a URL or IP. Result: list of e-mails, or null.')
+
+
+@api.route('/start', endpoint='v1_start')
+class Start(Resource):  # type: ignore[misc]
+    @api.doc(description='Checks that the URL can be analysed and counts the submission (a URL submitted '
+                         'many times in a day is reported to CIRCL automatically). Result: '
+                         '[true, normalised URL, null] or [false, URL, reason]. ' + JOB_DOC)
+    @api.expect(url_input)
+    @api.response(200, 'Job id (text)')
+    def post(self) -> Response:
+        url = str(_body().get('url', ''))
+        reports = get_reports()
+        if reports.should_autosend(reports.count_submission(url)):
+            try:
+                reports.send(url, auto=True)
+            except Exception:
+                # A mail server outage must not prevent the check itself
+                current_app.logger.exception('Automatic report failed')
+        return _text(get_legacy().create('is_valid_url', url=url))
+
+
+# v1 checks of sources that are not ported (yet): "not configured" (empty body)
+NOT_CONFIGURED = ('phishtank', 'virustotal_report', 'googlesafebrowsing', 'eupi',
+                  'pdnscircl', 'psslcircl', 'urlquery', 'ticket')
+
+
+def _not_configured_route(path: str) -> None:
+    @api.route(f'/{path}', endpoint=f'v1_{path}')
+    class NotConfigured(Resource):  # type: ignore[misc]
+        @api.doc(description=NOT_CONFIGURED_DOC)
+        @api.expect(query_input)
+        @api.response(200, 'Empty body')
+        def post(self) -> Response:
+            return _text('')
+
+
+for _path in NOT_CONFIGURED:
+    _not_configured_route(_path)
+
+
+@api.route('/_result/<string:job_id>', endpoint='v1_result')
+@api.doc(params={'job_id': 'Job id returned by a check'})
+class Result(Resource):  # type: ignore[misc]
+    @api.doc(description='Result of a job: 202 "Nay!" while it runs, 200 with the JSON result when it is '
+                         'done (the job is then deleted), 200 null for an unknown job.')
+    @api.response(200, 'The result, or null')
+    @api.response(202, '"Nay!": not done yet')
+    def get(self, job_id: str) -> Response:
+        status, data = get_legacy().result(job_id)
+        return _json(data, status)
+
+
+@api.route('/get_cache', endpoint='v1_get_cache')
+class GetCache(Resource):  # type: ignore[misc]
+    @api.doc(description='Everything known about the URL and each URL of its chain (from the cached answers), '
+                         'and with digest the text sent to CIRCL.')
+    @api.expect(cache_input)
+    def post(self) -> Response:
+        body = _body()
+        return _json(get_legacy().cached(str(body.get('query', '')), bool(body.get('digest', False))))
+
+
+@api.route('/submit', endpoint='v1_submit')
+class Submit(Resource):  # type: ignore[misc]
+    @api.doc(description='Sends the report of the URL to CIRCL (at most once a day per host). '
+                         'Answers the home page; 503 when reports are not enabled on this instance.')
+    @api.expect(url_input)
+    @api.response(503, 'Reports are not enabled')
+    def post(self) -> Response:
         try:
-            reports.send(url, auto=True)
-        except Exception:
-            # A mail server outage must not prevent the check itself
-            current_app.logger.exception('Automatic report failed')
-    return get_legacy().create('is_valid_url', url=url)
+            get_reports().send(str(_body().get('url', '')), client_ip(request))
+        except ReportsDisabled as e:
+            return _json({'status': 503, 'error': 'Service Unavailable', 'message': str(e)}, 503)
+        return _text(render_template('index.html'))
 
 
-@v1.route('/urls', methods=['POST'])
-def urls() -> str:
-    return get_legacy().create('url_list', url=str(_body().get('url', '')))
-
-
-@v1.route('/resolve', methods=['POST'])
-def resolve() -> str:
-    return get_legacy().create('dns_resolve', url=str(_body().get('url', '')))
-
-
-@v1.route('/lookyloo', methods=['POST'])
-def lookyloo() -> str:
-    return get_legacy().create('lookyloo', url=str(_body().get('url', '')))
-
-
-@v1.route('/bgpranking', methods=['POST'])
-def bgpranking() -> str:
-    return get_legacy().create('bgpranking', ip=str(_body().get('query', '')))
-
-
-@v1.route('/whois', methods=['POST'])
-def whois() -> str:
-    return get_legacy().create('whois', query=str(_body().get('query', '')))
-
-
-def _not_configured() -> str:
-    return ''
-
-
-for _name in NOT_CONFIGURED:
-    v1.add_url_rule(f'/{_name}', f'not_configured_{_name}', _not_configured, methods=['POST'])
-
-
-@v1.route('/_result/<job_id>', methods=['GET'])
-def result(job_id: str) -> Response:
-    status, data = get_legacy().result(job_id)
-    return _json(data, status)
-
-
-@v1.route('/get_cache', methods=['POST'])
-def get_cache() -> Response:
-    body = _body()
-    return _json(get_legacy().cached(str(body.get('query', '')), bool(body.get('digest', False))))
-
-
-@v1.route('/submit', methods=['POST'])
-def submit() -> ResponseReturnValue:
-    try:
-        get_reports().send(str(_body().get('url', '')), client_ip(request))
-    except ReportsDisabled as e:
-        return _json({'status': 503, 'error': 'Service Unavailable', 'message': str(e)}, 503)
-    return render_template('index.html')
-
-
-@v1.route('/urlreport', methods=['GET'])
-def urlreport() -> ResponseReturnValue:
-    # The report is the home page now: it checks ?url= when it loads
-    url = request.args.get('url')
-    return redirect(url_for('index', url=url) if url else url_for('index'))
+@api.route('/urlreport', endpoint='v1_urlreport')
+@api.doc(params={'url': {'description': 'URL to show', 'in': 'query'}})
+class URLReport(Resource):  # type: ignore[misc]
+    @api.doc(description='Report page of a URL: redirects to the home page, which checks it.')
+    @api.response(302, 'Redirect to /?url=…')
+    def get(self) -> Any:
+        url = request.args.get('url')
+        return redirect(url_for('index', url=url) if url else url_for('index'))

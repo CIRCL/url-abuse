@@ -18,7 +18,8 @@ from urlabuse.report import ReportsDisabled
 
 from .helpers import client_ip, get_analyses, get_reports
 
-api = Namespace('GenericAPI', description='URL Abuse API v2', path='/api/v2')
+api = Namespace('API v2', path='/api/v2',
+                description='The URL broker: analyse a URL with every provider, list the providers, report to CIRCL.')
 
 
 @api.route('/health')

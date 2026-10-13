@@ -17,7 +17,7 @@ from flask_restx import Api  # type: ignore[import-untyped]
 from .credits_data import CREDITS
 from .genericapi import api as generic_api
 from .helpers import get_reports
-from .legacy import v1
+from .legacy import api as legacy_api
 from .proxied import ReverseProxied
 
 app: Flask = Flask(__name__)
@@ -78,9 +78,8 @@ def unhandled_error(error: Exception) -> ResponseReturnValue:
     return http_error(InternalServerError())
 
 
-app.register_blueprint(v1)
-
 api = Api(app, title='URL Abuse API',
           description='API broker for URLs: send a URL, get the answers of every provider.',
           doc='/doc/', version=pkg_version)
 api.add_namespace(generic_api)
+api.add_namespace(legacy_api)

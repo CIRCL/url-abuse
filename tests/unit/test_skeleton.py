@@ -44,7 +44,10 @@ def test_home_page(client: FlaskClient) -> None:
 def test_swagger(client: FlaskClient) -> None:
     assert client.get('/doc/').status_code == 200
     spec = client.get('/swagger.json').get_json()
-    assert '/api/v2/health' in spec['paths']
+    assert '/api/v2/health' in spec['paths'] and '/api/v2/analyse' in spec['paths']
+    # API v1 is documented too
+    assert {'/start', '/urls', '/_result/{job_id}', '/get_cache', '/phishtank'} <= set(spec['paths'])
+    assert [t['name'] for t in spec['tags']] == ['API v2', 'API v1 (legacy)']
 
 
 def test_health_answers(client: FlaskClient) -> None:
