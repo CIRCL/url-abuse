@@ -33,6 +33,16 @@
         </div>
       </div>
 
+      {# While the checks run (js: app.js, "working" panel): what is happening and for how long #}
+      <div class="working" id="working" role="status" hidden>
+        <span class="working-spinner" aria-hidden="true"></span>
+        <div class="working-text">
+          <strong id="working-title">Checking the link…</strong>
+          <span id="working-detail">Starting the checks.</span>
+        </div>
+        <span class="working-time" id="working-time" aria-hidden="true">0 s</span>
+      </div>
+
       <div class="verdict" id="verdict" hidden></div>
 
       <div class="actions" id="actions" hidden>

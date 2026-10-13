@@ -397,6 +397,53 @@ body.has-report .lookup .btn-primary { padding: 0.625rem 1rem; }
   box-shadow: inset 0 0 0 1.5px var(--idle);
 }
 
+/* Empty track (nothing scheduled yet): a stripe sweeps through it */
+.progress-track:empty {
+  border-radius: 5px;
+  background:
+    linear-gradient(90deg, transparent 0%, var(--action) 50%, transparent 100%) no-repeat,
+    var(--idle);
+  background-size: 35% 100%, 100% 100%;
+  animation: track-sweep 1.3s ease-in-out infinite;
+}
+@keyframes track-sweep {
+  0% { background-position: -40% 0, 0 0; }
+  100% { background-position: 140% 0, 0 0; }
+}
+
+/* "Working" panel, shown while the checks run */
+.working {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.working[hidden] { display: none; }
+.working-spinner {
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 3px solid var(--idle);
+  border-top-color: var(--action);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.working-text { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+.working-text span { color: var(--muted); font-size: 0.9375rem; }
+.working-time { margin-left: auto; white-space: nowrap; font: 500 0.875rem/1 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.lookup .btn-primary[aria-busy="true"] { opacity: 0.75; cursor: progress; }
+
+@media (prefers-reduced-motion: reduce) {
+  .working-spinner { animation-duration: 3s; }
+  .progress-track:empty { animation: none; background: var(--idle); }
+}
+
 @keyframes seg-wait {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }

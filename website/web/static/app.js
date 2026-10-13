@@ -30,7 +30,12 @@
     again: $('new-check'),
     chain: $('chain'),
     tplHop: $('tpl-hop'),
-    tplHost: $('tpl-host')
+    tplHost: $('tpl-host'),
+    submit: document.querySelector('#lookup button[type=submit]'),
+    working: $('working'),
+    workingTitle: $('working-title'),
+    workingDetail: $('working-detail'),
+    workingTime: $('working-time')
   };
 
   // One run per submitted URL. Answers for an older run are dropped.
@@ -122,8 +127,8 @@
 
   /* ---------- Rendering an analysis ---------- */
 
-  function hopLabel(i, n) {
-    if (n === 1) return 'No redirects';
+  function hopLabel(i, n, searching) {
+    if (n === 1) return searching ? 'Looking for redirects…' : 'No redirects';
     if (i === 0) return 'Where the link starts';
     if (i === n - 1) return 'Where it ends up';
     return 'Redirect';
@@ -185,7 +190,7 @@
     });
   }
 
-  function renderHop(view, hop, i, n, labels) {
+  function renderHop(view, hop, i, n, labels, searching) {
     var node = view.hops[hop.url];
     if (!node) {
       node = els.tplHop.content.firstElementChild.cloneNode(true);
@@ -196,7 +201,7 @@
     node.querySelector('.hop-index').textContent = i + 1;
     var head = node.querySelector('.hop-url');
     var small = head.querySelector('small') || head.appendChild(el('small'));
-    small.textContent = hopLabel(i, n);
+    small.textContent = hopLabel(i, n, searching);
 
     var skipped = [];
     renderResults(view, hop.url, hop.results, node.querySelector('.hop-rows'),
@@ -246,7 +251,8 @@
     var labels = {};
     Object.keys(a.providers || {}).forEach(function (name) { labels[name] = a.providers[name].label; });
     view.states = [];
-    a.chain.forEach(function (hop, i) { renderHop(view, hop, i, a.chain.length, labels); });
+    var searching = a.status === 'queued' || (a.lookyloo && a.lookyloo.status === 'pending');
+    a.chain.forEach(function (hop, i) { renderHop(view, hop, i, a.chain.length, labels, searching); });
     renderLookyloo(a.lookyloo);
 
     els.track.setAttribute('aria-valuemax', a.progress.total);
@@ -261,6 +267,45 @@
       var secs = Math.max(1, Math.round((a.finished || Date.now() / 1000) - a.created));
       els.progressText.textContent = plural(a.progress.total, 'check', 'checks') + ' finished in ' +
         plural(secs, 'second', 'seconds');
+    }
+  }
+
+  /* ---------- "Working" panel: what is happening, and for how long ---------- */
+
+  var working = { timer: null, started: 0 };
+
+  function workingStart() {
+    working.started = Date.now();
+    els.working.hidden = false;
+    els.workingTime.textContent = '0 s';
+    els.submit.setAttribute('aria-busy', 'true');
+    els.submit.textContent = 'Checking…';
+    clearInterval(working.timer);
+    working.timer = setInterval(function () {
+      els.workingTime.textContent = Math.round((Date.now() - working.started) / 1000) + ' s';
+    }, 1000);
+  }
+
+  function workingStop() {
+    clearInterval(working.timer);
+    els.working.hidden = true;
+    els.submit.removeAttribute('aria-busy');
+    els.submit.textContent = 'Check URL';
+  }
+
+  function workingPhase(title, detail) {
+    if (els.workingTitle.textContent !== title) els.workingTitle.textContent = title;
+    if (els.workingDetail.textContent !== detail) els.workingDetail.textContent = detail;
+  }
+
+  function workingFrom(a) {
+    if (a.status === 'queued') {
+      workingPhase('Waiting for a free slot…', 'Other links are being checked; yours starts in a moment.');
+    } else if (a.lookyloo && a.lookyloo.status === 'pending') {
+      workingPhase('Opening the page in a real browser…',
+        'Lookyloo follows every redirect, like a visitor would. This usually takes 20 to 60 seconds; the other checks run meanwhile.');
+    } else {
+      workingPhase('Asking the sources…', a.progress.done + ' of ' + a.progress.total + ' answers received.');
     }
   }
 
@@ -425,13 +470,17 @@
     els.caption.textContent = 'Checking';
     renderSubject(input);
     els.progressText.textContent = 'Checking the address';
+    workingPhase('Checking the link…', 'Sending it to the server.');
+    workingStart();
 
     var started = Date.now();
     function poll(uuid) {
       return api('GET', 'analyse/' + encodeURIComponent(uuid)).then(function (a) {
         if (run !== token) return;
         render(view, a);
+        workingFrom(a);
         if (a.status === 'done') {
+          workingStop();
           els.caption.textContent = 'Checked';
           showVerdict(a, view);
           els.actions.hidden = false;
@@ -449,6 +498,7 @@
       return poll(created.uuid);
     }).catch(function (err) {
       if (run !== token) return;
+      workingStop();
       els.progressText.textContent = 'Stopped';
       if (err.status === 400) {
         els.caption.textContent = "Can't check";
@@ -479,6 +529,7 @@
 
   els.again.addEventListener('click', function () {
     run = null;
+    workingStop();
     els.report.hidden = true;
     els.body.classList.remove('has-report');
     els.input.value = '';

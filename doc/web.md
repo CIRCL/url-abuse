@@ -67,6 +67,21 @@ Images that differ per theme use the `only-light` / `only-dark` classes (a
 (vitrine) follows the theme because `app.css` maps our tokens onto its
 `--vt-*` tokens.
 
+## While a check runs
+
+The home page shows that it is working until the analysis is done:
+
+- the progress bar sweeps while nothing is scheduled yet, then has one
+  pulsing segment per pending answer;
+- a "working" panel (`#working`) says what is happening, from the state of the
+  analysis (waiting for a free slot / opening the page in a real browser,
+  20 to 60 seconds / asking the sources, `n of m` answers), with a seconds
+  counter; it is a `role="status"` region for screen readers;
+- the button reads "Checking…" (`aria-busy`), and a hop reads "Looking for
+  redirects…" until the Lookyloo capture is done.
+
+`prefers-reduced-motion` slows the spinner down and stops the sweep.
+
 ## URL field animation
 
 Example links are "typed" in the placeholder of the URL field (end of
