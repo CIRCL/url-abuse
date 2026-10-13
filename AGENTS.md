@@ -94,6 +94,9 @@ poetry run ruff check . && poetry run mypy . && poetry run python -m pytest test
 
 ## Web interface (redesign)
 
+- URL field: example links are "typed" letter by letter in its placeholder
+  (`app.js`, end of file); only the placeholder changes, it stops for good on
+  focus or input, and is off with `prefers-reduced-motion`.
 - One column: big intake ("Check a link before you trust it."), the checked
   URL typeset large in monospace (scheme faint, host bold, path muted), a
   **segmented progress bar where each segment is a real check**, then the

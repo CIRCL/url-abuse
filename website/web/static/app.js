@@ -642,3 +642,55 @@
     els.form.requestSubmit();
   }
 }());
+
+// URL field: example links "typed" in the placeholder, letter by letter.
+// Only the placeholder changes (never the value). Stops for good as soon as the
+// field is focused or filled; off with prefers-reduced-motion.
+(function () {
+  'use strict';
+
+  var input = document.getElementById('url');
+  if (!input || input.value || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return;
+  }
+  var examples = [
+    'https://paypal-account-verify.example.net/login',
+    'https://bit.ly/3xAmpl3',
+    'http://your-bank.example.com/secure/update',
+    'https://docs-share.example.org/invoice.pdf',
+    'https://www.circl.lu/'
+  ];
+  var original = input.placeholder;
+  var stopped = false;
+  var timer = null;
+  var stop = function () {
+    stopped = true;
+    clearTimeout(timer);
+    input.placeholder = original;
+  };
+  input.addEventListener('focus', stop, { once: true });
+  input.addEventListener('input', stop, { once: true });
+
+  var example = 0;
+  var length = 0;
+  var deleting = false;
+  var step = function () {
+    if (stopped) {
+      return;
+    }
+    var text = examples[example];
+    length += deleting ? -1 : 1;
+    input.placeholder = text.slice(0, length) + (deleting ? '' : '▍');
+    var delay = deleting ? 25 : 55 + Math.random() * 60;
+    if (!deleting && length === text.length) {
+      deleting = true;
+      delay = 1800;              // pause on the full URL
+    } else if (deleting && length === 0) {
+      deleting = false;
+      example = (example + 1) % examples.length;
+      delay = 400;
+    }
+    timer = setTimeout(step, delay);
+  };
+  timer = setTimeout(step, 800);
+}());
