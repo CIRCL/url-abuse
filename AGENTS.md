@@ -39,6 +39,20 @@ there and re-export the PNG when the architecture changes).
 6. **More providers later**, plugged into the broker the same way: MISP modules,
    then other pivot services (passive DNS, WHOIS, reputation…).
 7. **New web interface** (in progress on this branch, see below).
+8. **Full rebuild** (October 2026): new code from scratch, the old code only
+   stays in the git history. Plan: [`doc/ROADMAP.md`](./doc/ROADMAP.md).
+9. **A real API**: Flask 3 + flask-restx, self-documented with Swagger at
+   `/doc`. v2 = the broker (`/api/v2/analyse`, `/api/v2/providers`…); the v1
+   endpoints are reimplemented on top of it with the same payloads.
+10. **Stack like Lookyloo**: poetry + `pyproject.toml`, Python >= 3.10,
+    Valkey 8, `urlabuse/default/` (homedir, config, AbstractManager daemons),
+    `config/*.json` with committed `.sample` files.
+11. **Provider credentials** in `config/providers.json` (git-ignored,
+    `config/providers.json.sample` committed).
+12. **Broken v1 sources** (`/urlquery`, `/ticket`) are kept in the contract
+    and answer "not configured" (empty body), like any unconfigured source.
+13. **No third-party front-end file committed, no CDN** (Lookyloo rule):
+    fonts and libraries are fetched at install time by `tools/3rdparty.py`.
 
 ## Repository layout (current code, before the rebuild)
 
@@ -80,14 +94,8 @@ doc/architecture/    Architecture diagram (PNG + Pivograph JSON)
 
 ## Open points
 
-- **Fonts from Google Fonts**: `templates/index.html` loads Schibsted Grotesk and
-  IBM Plex Mono from `fonts.googleapis.com`. Lookyloo serves everything locally
-  (no CDN, CSP `default-src 'self'`) and does not commit third-party files (they
-  are downloaded by a `tools/3rdparty.py` script). Decide whether URL Abuse
-  follows the same rule; if so, download the fonts at install time.
-- Shape of the broker API (one aggregated call, or one call per provider as
-  today) and how the existing endpoints map onto it.
-- Where provider credentials live (today: API key files at the repository root).
+- Who sends data to URL Abuse today (feeds, partners, scripts) and in which
+  format: to confirm with the owner (roadmap step 8).
 
 ## Conventions
 
